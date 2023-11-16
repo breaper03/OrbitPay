@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "OrbitPay",
+    "slug": "OrbitPay",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/orbitLG.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/OrbitMedium.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#fafafa"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.orbitpay.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/Orbit.png",
+        "backgroundColor": "#fafafa",
+        "resizeMode": "fill"
+      },
+      "package": "com.orbitpay.app",
+      "version": "0.0.1"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ef3f6a3c-b7b5-49ea-acf1-f1fdd05f1fbd"
+      }
+    },
+    "owner": "breaper03"
+  }
+}
