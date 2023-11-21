@@ -11,10 +11,8 @@ import Loader from '../components/Loader';
 
 const Login = () => {
 
-  const {handleLogOut} = useUser()
-
   const navigaton = useNavigation()
-  const { handleLogin, handleRegister } = useUser()
+  const { handleLogin, handleRegister, handleLogOut } = useUser()
 
   const [submitError, setSubmitError] = useState({
     error: false,
@@ -129,8 +127,8 @@ const Login = () => {
     });
   };
 
-  const checkLoginErrors = () => Object.values(loginError).some((value) => value === true);
-  const checkRegisterErrors = () => Object.values(registerError).some((value) => value === true);
+  const checkLoginErrors = () => !Object.values(loginError).some((value) => value === true);
+  const checkRegisterErrors = () => !Object.values(registerError).some((value) => value === true);
   
   const handleSelectCountry = (option) => {
     setReside(option.value)
@@ -167,7 +165,7 @@ const Login = () => {
       await handleLogin(formValueLogin)
         .then(() => navigaton.navigate("Dashboard"))
         .catch((error) => setSubmitError({error: true, message: error}))
-    }
+    } 
     setLoading(false)
   }
 
@@ -176,9 +174,11 @@ const Login = () => {
     validateRegisterParams()
     const errors = checkRegisterErrors()
     if (!errors) {
-      await handleLogin(formValueRegister)
+      await handleRegister(formValueRegister)
         .then(() => setValue("Iniciar Sesion"))
-        .catch((error) => setSubmitError({error: true, message: error}))
+        .catch((error) => {
+          setSubmitError({error: true, message: error})
+        })
     }
     setLoading(false)
   }

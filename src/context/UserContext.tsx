@@ -1,6 +1,6 @@
 import React, { ReactNode, createContext, useContext, useEffect, useState } from "react";
 import { IUser, IUserLogin, IUserNoVerified, IUserRegistration, IUserSesion } from "../interfaces/Users.interface";
-import { getOne, login, register } from "../api/users/Users";
+import { getOne, login, register, resetPassword } from "../api/users/Users";
 import * as SecureStore from "expo-secure-store";
 
 interface UserContextProps {
@@ -38,6 +38,8 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             : setUser(res.response)
           return res
         }).then((data) => data.code === 200 ? setInitialScreen("Dashboard") : setInitialScreen("Login"))
+    } else {
+      setInitialScreen("Login")
     }
   }
 
@@ -56,10 +58,9 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const handleRegister = async (credentials: IUserRegistration) => {
     try {
       const registerData = await register(credentials);
-      console.log(registerData);
       return registerData;
     } catch (error) {
-      console.log("error", error)
+      throw new Error("Credenciales incorrectas!")
     }
   }
 
@@ -67,6 +68,10 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     setUser(undefined)
     await SecureStore.setItemAsync("token", "")
     await SecureStore.setItemAsync("userId", "")
+  }
+
+  const handleResetPassword = async (email: string) => {
+    return await resetPassword(email).then((data) => console.log(data))  
   }
 
   return (

@@ -1,6 +1,6 @@
 import { StyleSheet, View, TouchableOpacity, Dimensions } from 'react-native'
 import { Icon } from '@rneui/themed'
-import { StyledText } from "./index"
+import StyledText from "./StyledText"
 import theme from '../theme'
 
 const Keyboard = ({amount, setAmount}) => {

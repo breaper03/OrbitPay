@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
-import { Home, Transactions, Pay, Send, Swap, Orbit, Resume, TransactionComplete, Login, LoadingScreen, UserDashboard } from '../screens'
-import { View, Image, Keyboard } from 'react-native'
+import { Home, Transactions, Pay, Send, Swap, Orbit, Resume, TransactionComplete, Login, LoadingScreen, UserDashboard } from '../screens/index'
+import { View, Image } from 'react-native'
 import { Entypo } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';

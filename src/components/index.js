@@ -8,4 +8,4 @@ import StyledTransations from "./StyledTransations";
 import Dropdown from "./Dropdown";
 import Keyboard from "./Keyboard";
 
-export {Navigation, StyledModal, StyledModalTable, StyledTable, StyledText, StyledTransations, StyledUserBar, Dropdown, Keyboard}
+export { Navigation, StyledModal, StyledModalTable, StyledTable, StyledText, StyledTransations, StyledUserBar, Dropdown, Keyboard }
