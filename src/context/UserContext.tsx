@@ -30,7 +30,13 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const handleAutoLogin = async () => {
     const token = await SecureStore.getItemAsync("token");
     const userId = await SecureStore.getItemAsync("userId");
-    if (token !== null && userId !== null) {
+
+    console.log("token", token.length)
+    console.log("userId", userId.length)
+
+    if (token.length === 0 || userId.length === 0) {
+      setInitialScreen("Login")
+    } else {
       return await getOne(userId, token)
         .then((res) => {
           res.code && res.code === 401
@@ -38,8 +44,6 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             : setUser(res.response)
           return res
         }).then((data) => data.code === 200 ? setInitialScreen("Dashboard") : setInitialScreen("Login"))
-    } else {
-      setInitialScreen("Login")
     }
   }
 

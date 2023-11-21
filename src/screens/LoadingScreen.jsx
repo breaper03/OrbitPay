@@ -15,11 +15,7 @@ const LoadingScreen = () => {
       if (initialScreen === "Loading") {
         setLoading(true);
       } else {
-        if (initialScreen === "Dashboard") {
-          navigation.navigate('Dashboard');
-        } else {
-          navigation.navigate('Login');
-        }
+        navigation.navigate(initialScreen);
       }
     };
     determineInitialScreen();

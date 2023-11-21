@@ -127,8 +127,8 @@ const Login = () => {
     });
   };
 
-  const checkLoginErrors = () => !Object.values(loginError).some((value) => value === true);
-  const checkRegisterErrors = () => !Object.values(registerError).some((value) => value === true);
+  const checkLoginErrors = () => Object.values(loginError).some((value) => value === true);
+  const checkRegisterErrors = () => Object.values(registerError).some((value) => value === true);
   
   const handleSelectCountry = (option) => {
     setReside(option.value)
@@ -161,6 +161,7 @@ const Login = () => {
     setLoading(true)
     validateLoginParams()
     const errors = checkLoginErrors()
+    console.log(errors)
     if (!errors) {
       await handleLogin(formValueLogin)
         .then(() => navigaton.navigate("Dashboard"))
