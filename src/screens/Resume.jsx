@@ -38,7 +38,6 @@ const Resume = () => {
   };
 
   const handleOpenModal = () => {
-    console.log("entrea")
     if (!emailRegex.test(formData.email)) {
       setInputError({email: true, description: inputError.description});
       !formData.description && setInputError({description: true, email: inputError.email});
@@ -65,7 +64,7 @@ const Resume = () => {
         <View style={[{ backgroundColor: theme.colors.lightBlue, height: "70%" }]} />
 
         {/* Tarjeta que estará en el centro de la pantalla */}
-        <KeyboardAvoidingView style={styles.card} behavior='padding'>
+        <View style={styles.card}>
           <Modal
             animationType="slide"
             transparent={true}
@@ -169,7 +168,7 @@ const Resume = () => {
               <StyledText color="white" fontSize="medium" fontWeight="bold">Enviar Orbit</StyledText>
             </TouchableOpacity>
           </View>
-        </KeyboardAvoidingView>
+        </View>
       </View>
     </>
   );

@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, StyleSheet, Dimensions } from 'react-native'
+import * as SecureStore from "expo-secure-store"
 import Constants from 'expo-constants';
 import StyledText from "../components/StyledText"
 import StyledTable from '../components/StyledTable'
@@ -7,20 +8,21 @@ import StyledModal from '../components/StyledModal'
 import theme from '../theme';
 import { TouchableOpacity } from 'react-native';
 import { Icon } from '@rneui/themed';
-import { SafeAreaView } from 'react-native-safe-area-context'
 import StyledUserBar from '../components/StyledUserBar'
 import StyledTransations from '../components/StyledTransations';
 import { StatusBar } from 'expo-status-bar'
+import { useUser } from '../context/UserContext';
 
 const { width, height } = Dimensions.get('window');
 
 const Home = () => {
-
+  const { user } = useUser()
   const [visible, setVisible] = useState(false);
+  const [token, setToken] = useState(undefined)
 
   return (
     <>
-      <StatusBar style="dark" backgroundColor={theme.colors.lightBlue} hidden={false} translucent={true}/>
+      <StatusBar style="light" backgroundColor={theme.colors.lightBlue} hidden={false} translucent={true}/>
       <View style={{height: Constants.statusBarHeight}}>
         <StyledModal visible={visible} setVisible={setVisible} />
       </View>
@@ -29,7 +31,7 @@ const Home = () => {
 
           {/* User Bar */}
           <View style={styles.carouselTopBar}>
-            <StyledUserBar/>
+            <StyledUserBar user={user}/>
           </View>
 
           {/* Balance Bar */}
@@ -86,7 +88,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 1,
     paddingVertical: 1,
     overflow: 'hidden',
-    margin: 10,
+    marginVertical: 10,
     maxHeight: height * 0.065,
     borderRadius: 10,
     shadowColor: theme.colors.black,

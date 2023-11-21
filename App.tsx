@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import React from 'react';
 import Navigation from './src/components/Navigation';
-import { NavigationContainer, useRoute } from '@react-navigation/native';
+import { UserProvider } from './src/context/UserContext';
 
 export default function App() {
 
@@ -11,7 +11,9 @@ export default function App() {
     <>
       <SafeAreaProvider>
         <View style={{flex:1}}>
-          <Navigation/>
+          <UserProvider>
+            <Navigation/>
+          </UserProvider>
         </View>
       </SafeAreaProvider>
     </>

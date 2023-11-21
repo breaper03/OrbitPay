@@ -70,7 +70,7 @@ const TransactionComplete = () => {
               <View style={{width: width * 0.70, marginTop: 15}}>
                 <TouchableOpacity 
                   style={{backgroundColor: theme.colors.blue, alignItems: 'center', paddingHorizontal: 5, paddingVertical:10, borderRadius: 100}}
-                  onPress={() => navigation.navigate("Home")}
+                  onPress={() => navigation.navigate("Dashboard")}
                 >
                   <StyledText color="white" fontSize="medium" fontWeight="bold">Volver al inicio</StyledText>
                 </TouchableOpacity>

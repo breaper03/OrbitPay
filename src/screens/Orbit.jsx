@@ -17,7 +17,7 @@ const Orbit = () => {
       <View style={styles.container}>
         <View style={{ backgroundColor: theme.colors.lightBlue, height: "30%", alignItems: 'center', justifyContent: 'flex-start'}}/>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Home")} style={styles.goBack}>
+        <TouchableOpacity onPress={() => navigation.navigate("Dashboard")} style={styles.goBack}>
           <View style={styles.itemsGoBack}>
             <Icon type='material-icons' name='chevron-left' color={theme.colors.blue} size={55}/>
             <StyledText color="blue" fontSize="xxxl" fontWeight="bold">Home</StyledText>

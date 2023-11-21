@@ -71,8 +71,6 @@ const Pay = () => {
       balance: "12,4000"
     },
   ]
-
-  
   
   return (
     <>

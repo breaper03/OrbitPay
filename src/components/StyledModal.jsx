@@ -35,7 +35,7 @@ export default function StyledModal({visible, setVisible}) {
                 >
                   <StyledText fontSize="medium" fontWeight="bold" color="white">Aceptar</StyledText>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setModalVisible(false)} 
+                <TouchableOpacity onPress={() => setVisible(false)} 
                   style={{
                     backgroundColor: theme.colors.white,
                     elevation: 3,
