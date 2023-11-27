@@ -1,17 +1,17 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import Loader from '../components/Loader'
-import { useUser } from "../context/UserContext"
 import { useEffect, useState } from 'react'
+import { useUser } from "../context/UserContext"
 import { useNavigation } from "@react-navigation/native"
 import theme from '../theme'
 
 const LoadingScreen = () => {
-  const { initialScreen, user } = useUser();
+  const { initialScreen } = useUser();
   const navigation = useNavigation();
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const determineInitialScreen = () => {
+    const determineInitialScreen = async () => {
       if (initialScreen === "Loading") {
         setLoading(true);
       } else {

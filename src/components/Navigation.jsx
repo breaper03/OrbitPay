@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
-import { Home, Transactions, Pay, Send, Swap, Orbit, Resume, TransactionComplete, Login, LoadingScreen, UserDashboard } from '../screens/index'
+import { Home, Transactions, Receive, Swap, Orbit, Resume, TransactionComplete, Login, LoadingScreen, UserDashboard } from '../screens/index'
+import Pay from "../screens/Pay"
 import { View, Image } from 'react-native'
 import { Entypo } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
@@ -28,14 +29,13 @@ const screenOptions = {
 
 const Navigation = () => {
 
-  const { user } = useUser()
-
-  const [menuShown, setMenuShown] = useState(true)
+  const { initialScreen } = useUser()
 
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Loading"
+        initialRouteName={initialScreen}
+        // initialRouteName='Login'
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="Dashboard">
@@ -106,8 +106,8 @@ const Navigation = () => {
           component={Pay} 
         />
         <Stack.Screen 
-          name="Send" 
-          component={Send} 
+          name="Receive" 
+          component={Receive} 
         />
         <Stack.Screen 
           name="Swap" 
@@ -161,8 +161,8 @@ function MyStack() {
         component={Pay} 
       />
       <Stack.Screen 
-        name="Send" 
-        component={Send} 
+        name="Receive" 
+        component={Receive} 
       />
       <Stack.Screen 
         name="Swap" 

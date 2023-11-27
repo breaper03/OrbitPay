@@ -40,7 +40,7 @@ const Orbit = () => {
             </TouchableOpacity>
             
             <TouchableOpacity
-              onPress={() => navigation.navigate("Send")}
+              onPress={() => navigation.navigate("Receive")}
               style={{backgroundColor: theme.colors.lightBlue, paddingBottom: 10, borderRadius:15, flexDirection: 'column', alignItems:'center', elevation: 3}}>
               <View style={styles.buttonCard}>
                 <Icon name='arrow-bottom-left-thick' type='material-community' color={theme.colors.white} size={40}/>

@@ -31,7 +31,7 @@ const Pay = () => {
     {
       coin: "PTR",
       coinName: "Petro",
-      icon: <Image source={require("../../assets/Petro.png")}/>,
+      icon: <Image source={require("../../assets/PTR.png")}/>,
       balance: "0,00033"
     },
     {
@@ -49,29 +49,29 @@ const Pay = () => {
     {
       coin: "ETH",
       coinName: "Ethereum",
-      icon: <Image source={require("../../assets/eth.png")}/>,
+      icon: <Image source={require("../../assets/ETH.png")}/>,
       balance: "2,50000000"
     },
     {
       coin: "USD",
       coinName: "Dolar",
-      icon: <Image source={require("../../assets/usd.png")}/>,
+      icon: <Image source={require("../../assets/USD.png")}/>,
       balance: "15,00"
     },
     {
       coin: "EUR",
       coinName: "Euro",
-      icon: <Image source={require("../../assets/euro.png")}/>,
+      icon: <Image source={require("../../assets/EUR.png")}/>,
       balance: "25,00"
     },
     {
       coin: "BS",
       coinName: "Bolivar",
-      icon: <Image source={require("../../assets/bolivar.png")}/>,
+      icon: <Image source={require("../../assets/VES.png")}/>,
       balance: "12,4000"
     },
   ]
-  
+  // ["VES", "USDT", "USD", "EUR", "ETH", "BTC"]
   return (
     <>
       <StatusBar style="inverted" backgroundColor={theme.colors.blue} hidden={false} translucent={true}/>

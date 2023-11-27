@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, TouchableOpacity, Dimensions, TextInput, Modal, Keyboard, KeyboardAvoidingView } from 'react-native'
+import { StyleSheet, View, TouchableOpacity, Dimensions, TextInput, Modal, Image } from 'react-native'
 import { Icon } from '@rneui/themed';
 import { StatusBar } from 'expo-status-bar'
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -47,6 +47,28 @@ const Resume = () => {
   const handleSubmit = (e) => {
     navigation.navigate("TransactionComplete", {email: formData.email, description: formData.description, amount: amount, coin: coin})
   }
+  const getExchange = () => {
+    const exhange = parseFloat(amount.replace(",", ".")) / coin.exchange_rate
+    return parseFloat(exhange.toFixed(8));
+  }
+  const transformedArray = (number) => {
+    // Eliminar signo '-' y reemplazar ',' por '.'
+    const formattedNumber = number.replace('-', '').replace(',', '.');
+  
+    // Redondear a 7 decimales
+    const roundedNumber = Number(formattedNumber).toFixed(7);
+  
+    return roundedNumber.replace("-", "");
+  }
+
+  const fixTotalInDolar = (numero) => {
+    // Convierte el número a un string con dos decimale
+    const numeroFormateado = Number(numero).toFixed(2);
+  
+    // Asegura que el número nunca sea negativo
+    const plusNumber = numeroFormateado < 0 ? "0.00" : numeroFormateado;  
+    return plusNumber;
+  };
 
   return (
     <>
@@ -122,14 +144,17 @@ const Resume = () => {
               }}
             >
               <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10}}>
-                {coin.icon}
                 <View>
-                  <StyledText fontSize="base" fontWeight="light" color="blue">{coin.coin}</StyledText>
-                  <StyledText fontSize="xs" fontWeight="light" color="blue">{coin.coinName}</StyledText>
+                  <Image source={{uri: `${coin.currency_icon_path}`}} width={20} height={20}/>
+                </View>
+                <View>
+                  <StyledText fontSize="base" fontWeight="light" color="blue">{coin.currency_name}</StyledText>
+                  <StyledText fontSize="xs" fontWeight="light" color="blue">{coin.currency_symbol}</StyledText>
                 </View>
               </View>
-              <View>
-                <StyledText fontSize="medium" fontWeight="bold" color="gray">{coin.balance}</StyledText>
+              <View style={{alignItems: 'flex-end'}}>
+                <StyledText fontSize="normal" fontWeight="base" color="blue">{getExchange()}</StyledText>
+                <StyledText fontSize="medium" fontWeight="bold" color="blue">$ {amount}</StyledText>
               </View>
             </View>
             <View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between'}}>

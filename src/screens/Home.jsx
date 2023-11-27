@@ -18,11 +18,12 @@ const { width, height } = Dimensions.get('window');
 const Home = () => {
   const { user } = useUser()
   const [visible, setVisible] = useState(false);
-  const [token, setToken] = useState(undefined)
+
+  const [balance, setBalance] = useState(0)
 
   return (
     <>
-      <StatusBar style="light" backgroundColor={theme.colors.lightBlue} hidden={false} translucent={true}/>
+      <StatusBar style="dark" backgroundColor={theme.colors.lightBlue} hidden={false} translucent={true}/>
       <View style={{height: Constants.statusBarHeight}}>
         <StyledModal visible={visible} setVisible={setVisible} />
       </View>
@@ -44,7 +45,7 @@ const Home = () => {
                 <StyledText 
                   style={{color: theme.colors.white, fontWeight: theme.fontWeights.bold, fontSize: theme.fontSize.medium, marginBottom: 3}}
                 >$</StyledText>
-                <StyledText fontSize="xxl" fontWeight="bold" color="white"> 100</StyledText>
+                <StyledText fontSize="xxl" fontWeight="bold" color="white"> {balance}</StyledText>
                 <Icon name='info-outline' type='material' size={14} color={theme.colors.white} style={styles.modalIcon}/>
               </View>
             </TouchableOpacity>
@@ -53,11 +54,11 @@ const Home = () => {
           {/* Table and Transactions Container */}
           <View style={{ flex: 1, flexDirection: "column"}}>
             <View style={{height: height * 0.365, marginBottom: 15, elevation: 3}}>
-              <StyledTable/>
+              <StyledTable setBalance={setBalance}/>
             </View>
             
             <View style={{height:height * 0.19, paddingVertical: 1}}>
-              <StyledTransations title={["Ultimas transacciones"]} customHeight={0.2}/>
+              <StyledTransations pagination={0} customHeight={0.245}/>
             </View>
           </View>
 

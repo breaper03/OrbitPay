@@ -1,172 +1,127 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, FlatList, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native'
 import { Icon } from '@rneui/themed';
 import { useNavigation } from '@react-navigation/native';
 import StyledText from './StyledText';
+import Loader from './Loader';
 import theme from "../theme"
+import { useUser } from "../context/UserContext"
+
+const StyledTable = ({setBalance}) => {
+  const { handleUserBalance, transactions } = useUser()
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const getTransactions = async () => {
+      setLoading(true);
+      if (!transactions) {
+          return await handleUserBalance()
+            .then((data) => {
+              setLoading(false);
+            })
+            .catch((error) => {
+              setLoading(false);
+            })
+        } else {
+          setLoading(false);
+        }
+    }
+    getTransactions()
+  }, [transactions])
 
 
-
-const data = [
-  {
-    id: 1,
-    name: "PTR",
-    coinName: "Petro",
-    balance: "0,000",
-    value: "0,520000",
-    action: {
-      deposit: <Icon name='arrow-top-right-thick' type='material-community'  color={theme.colors.blue} size={20}/>, 
-      withdrawal: <Icon name='arrow-bottom-left-thick' type='material-community'
-        color={theme.colors.blue} size={20}
-      />, 
-      swap: <Icon name='sync' type='material-community' color={theme.colors.blue} size={20}/>
-    },
-    icon: <Image source={require("../../assets/Petro.png")}/>
-  },
-  {
-    id: 2,
-    name: "BTC",
-    coinName: "Bitcoin",
-    balance: "0,000",
-    value: "0.520000",
-    action: {
-      deposit: <Icon name='arrow-top-right-thick' type='material-community'  color={theme.colors.blue} size={20}/>, 
-      withdrawal: <Icon name='arrow-bottom-left-thick' type='material-community' 
-        color={theme.colors.blue} size={20}
-      />, 
-      swap: <Icon name='sync' type='material-community' color={theme.colors.blue} size={20}/>
-    },
-    icon: <Image source={require("../../assets/BTC.png")}/>
-  },
-  {
-    id: 3,
-    name: "USDT",
-    coinName: "Tether",
-    balance: "0,000",
-    value: "300",
-    action: {
-      deposit: <Icon name='arrow-top-right-thick' type='material-community'  color={theme.colors.blue} size={20}/>, 
-      withdrawal: <Icon name='arrow-bottom-left-thick' type='material-community' 
-        color={theme.colors.blue} size={20}
-      />, 
-      swap: <Icon name='sync' type='material-community' color={theme.colors.blue} size={20}/>
-    },
-    icon: <Image source={require("../../assets/USDT.png")}/>
-  },
-  {
-    id: 4,
-    name: "ETH",
-    coinName: "Ethereum",
-    balance: "0,000",
-    value: "0,520000",
-    action: {
-      deposit: <Icon name='arrow-top-right-thick' type='material-community'  color={theme.colors.blue} size={20}/>, 
-      withdrawal: <Icon name='arrow-bottom-left-thick' type='material-community'color={theme.colors.blue} size={20}/>, 
-      swap: <Icon name='sync' type='material-community' color={theme.colors.blue} size={20}/>
-    },
-    icon: <Image source={require("../../assets/eth.png")}/>
-  },
-  {
-    id: 5,
-    name: "USD",
-    coinName: "Dolar",
-    balance: "0,000",
-    value: "0.520000",
-    action: {
-      deposit: <Icon name='arrow-top-right-thick' type='material-community'  color={theme.colors.blue} size={20}/>, 
-      withdrawal: <Icon name='arrow-bottom-left-thick' type='material-community' 
-        color={theme.colors.blue} size={20}
-      />, 
-      swap: <Icon name='sync' type='material-community' color={theme.colors.blue} size={20}/>
-    },
-    icon: <Image source={require("../../assets/usd.png")}/>
-  },
-  {
-    id: 6,
-    name: "EUR",
-    coinName: "Euro",
-    balance: "0,000",
-    value: "0.520000",
-    action: {
-      deposit: <Icon name='arrow-top-right-thick' type='material-community'  color={theme.colors.blue} size={20}/>, 
-      withdrawal: <Icon name='arrow-bottom-left-thick' type='material-community' 
-        color={theme.colors.blue} size={20}
-      />, 
-      swap: <Icon name='sync' type='material-community' color={theme.colors.blue} size={20}/>
-    },
-    icon: <Image source={require("../../assets/euro.png")}/>
-  },
-  {
-    id: 7,
-    name: "BS",
-    coinName: "Bolivares",
-    balance: "0,000",
-    value: "300",
-    action: {
-      deposit: <Icon name='arrow-top-right-thick' type='material-community'  color={theme.colors.blue} size={20}/>, 
-      withdrawal: <Icon name='arrow-bottom-left-thick' type='material-community' 
-        color={theme.colors.blue} size={20}
-      />, 
-      swap: <Icon name='sync' type='material-community' color={theme.colors.blue} size={20}/>
-    },
-    icon: <Image source={require("../../assets/bolivar.png")}/>
-  },
-]
-
-const StyledTable = () => {
+  const transformedArray = (number) => {
+    // Eliminar signo '-' y reemplazar ',' por '.'
+    const formattedNumber = number.replace('-', '').replace(',', '.');
   
+    // Redondear a 7 decimales
+    const roundedNumber = Number(formattedNumber).toFixed(7);
+  
+    return roundedNumber.replace("-", "");
+  }
 
+  const fixTotalInDolar = (numero) => {
+    // Convierte el número a un string con dos decimale
+    const numeroFormateado = Number(numero).toFixed(2);
+    setTotalBalance()
+
+  
+    // Asegura que el número nunca sea negativo
+    const plusNumber = numeroFormateado < 0 ? "0.00" : numeroFormateado;  
+    return plusNumber;
+  };
+
+  const setTotalBalance = () => {
+    const formatNumber = transactions.map((item) => Number(item.total_in_usd).toFixed(2))
+    const balance = formatNumber.reduce((total, numero) => total + parseFloat(numero), 0)
+
+    const formattedNumber = parseFloat(balance).toFixed(2);
+
+    
+    // Split into integer and decimal parts
+    const parts = formattedNumber.split('.');
+    let integerPart = parts[0];
+    const decimalPart = parts[1];
+  
+    // Add commas as thousands separators
+    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  
+    // Combine the formatted parts
+    const finalNumber = `${integerPart}.${decimalPart}`;
+    setBalance(finalNumber)
+  };
+  
   const navigation = useNavigation()
 
-  const renderItem = ({item}) => (
-    <View key={item.id} style={styles.rows}>
-      <View color="blue" fontSize="xxs" fontWeight="extralight" style={styles.icoRow}>
+  const renderItem = ({item}) => {
+    return (
+      <View key={item.id} style={styles.rows}>
+        <View color="blue" fontSize="xxs" fontWeight="extralight" style={styles.icoRow}>
 
-        <View>
-          {item.icon}
-        </View>
-        <View>
-          <StyledText style={styles.icoRowText}>{item.coinName}</StyledText>
-          <StyledText style={styles.icoRowText}>{item.name}</StyledText> 
+          <View >
+            <Image source={{uri: `${item.currency_icon_path}`}} width={20} height={20}/>
+          </View>
+          <View>
+            <StyledText style={styles.icoRowText}>{item.currency_name}</StyledText>
+            <StyledText style={styles.icoRowText}>{item.currency_symbol}</StyledText> 
+          </View>
+
         </View>
 
+        <View color="blue" fontSize="xxs" fontWeight="extralight" style={styles.balanceRow}>
+          <View>
+            <StyledText style={styles.balanceRowText}>{transformedArray(item.total)}</StyledText>
+            <StyledText style={styles.balanceRowText}>$ {fixTotalInDolar(item.total_in_usd).replace("-", "")}</StyledText> 
+          </View>
+        </View>
+
+        <TouchableOpacity style={styles.rowsText}>
+          <StyledText color="blue" fontSize="xxs" fontWeight="extralight" style={styles.rowsText}
+            onPress={() => navigation.navigate("Pay", {coin: item})}
+          >
+            <Icon name='arrow-top-right-thick' type='material-community'  color={theme.colors.blue} size={20}/>
+          </StyledText>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.rowsText}>
+          <StyledText color="blue" fontSize="xxs" fontWeight="extralight" style={styles.rowsText}
+            onPress={() => navigation.navigate("Receive", {coin: item})}
+          >
+            <Icon name='arrow-bottom-left-thick' type='material-community'color={theme.colors.blue} size={20}/>
+          </StyledText>        
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.rowsText}>
+          <StyledText color="blue" fontSize="xxs" fontWeight="extralight" style={styles.rowsText}
+            onPress={() => navigation.navigate("Swap", {coin: item})}
+          >
+            <Icon name='sync' type='material-community' color={theme.colors.blue} size={20}/>
+          </StyledText>
+        </TouchableOpacity>
       </View>
 
-      <View color="blue" fontSize="xxs" fontWeight="extralight" style={styles.balanceRow}>
-        <View>
-          <StyledText style={styles.balanceRowText}>{item.value}</StyledText>
-          <StyledText style={styles.balanceRowText}>$ {item.balance}</StyledText> 
-        </View>
-      </View>
-
-      <TouchableOpacity style={styles.rowsText}>
-        <StyledText color="blue" fontSize="xxs" fontWeight="extralight" style={styles.rowsText}
-          onPress={() => navigation.navigate("Pay")}
-        >
-          {item.action.deposit}
-        </StyledText>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.rowsText}>
-        <StyledText color="blue" fontSize="xxs" fontWeight="extralight" style={styles.rowsText}
-          onPress={() => navigation.navigate("Send")}
-        >
-          {item.action.withdrawal}
-        </StyledText>        
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.rowsText}>
-        <StyledText color="blue" fontSize="xxs" fontWeight="extralight" style={styles.rowsText}
-          onPress={() => navigation.navigate("Swap")}
-        >
-          {item.action.swap}
-        </StyledText>
-      </TouchableOpacity>
-
-
-
-    </View>
-  )
+    )
+  }
   
   return (
 
@@ -174,19 +129,29 @@ const StyledTable = () => {
     <View style={styles.container}>
 
       <View key={Math.random()} style={styles.header}>
-        <StyledText fontSize="base" fontWeight="extrabold" color="blue" style={styles.headerText}> </StyledText>
+        <StyledText fontSize="base" fontWeight="extrabold" color="blue" style={styles.headerText}>Moneda</StyledText>
         <StyledText fontSize="base" fontWeight="extrabold" color="blue" style={styles.headerBalancetext}>Balance</StyledText>
         <StyledText fontSize="base" fontWeight="extrabold" color="blue" style={styles.headerActionText}>Envio</StyledText>
         <StyledText fontSize="base" fontWeight="extrabold" color="blue" style={styles.headerActionText}>Deposito</StyledText>
         <StyledText fontSize="base" fontWeight="extrabold" color="blue" style={styles.headerActionText}>Intercambio</StyledText>
       </View>
 
-      <FlatList
-        style={styles.flatList}
-        data={data}
-        keyExtractor={(item, index) => { item.id.toString() }}
-        renderItem={renderItem}
-      ></FlatList>
+      {
+        loading === true
+          ? (
+            <View style={[styles.flatList, {alignItems: 'center', justifyContent: 'center'}]}>
+              <Loader color={theme.colors.blue} loading={loading} size={"large"} key={Math.random()}/>
+            </View>
+          ) : (
+            <FlatList
+              style={styles.flatList}
+              data={transactions}
+              keyExtractor={(item, index) => { item.id }}
+              renderItem={renderItem}
+            />
+          )
+      }
+
     </View>
   )
 }
@@ -272,7 +237,8 @@ const styles = StyleSheet.create({
   flatList: {
     backgroundColor: theme.colors.white,
     borderRadius: 5,
-    height: height * 0.295,
+    minHeight: height * 0.280,
+    maxHeight: height * 0.280,
     elevation: 3
   },
 
@@ -312,7 +278,7 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.base,
     color: theme.colors.blue,
     fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeights.extraLight,
+    fontWeight: theme.fontWeights.normal,
   },
   balanceRow : {
     flex: 1,
@@ -330,7 +296,7 @@ const styles = StyleSheet.create({
     textAlign: "right",
     color: theme.colors.blue,
     fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeights.extraLight,
+    fontWeight: theme.fontWeights.normal,
     width: 60,
     overflow: "hidden",
     maxHeight: "100%"

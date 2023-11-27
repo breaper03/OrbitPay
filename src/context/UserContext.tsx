@@ -2,14 +2,19 @@ import React, { ReactNode, createContext, useContext, useEffect, useState } from
 import { IUser, IUserLogin, IUserNoVerified, IUserRegistration, IUserSesion } from "../interfaces/Users.interface";
 import { getOne, login, register, resetPassword } from "../api/users/Users";
 import * as SecureStore from "expo-secure-store";
+import { getBalance } from "../api/transactions/transactions";
+import { BalanceList } from "../interfaces/Transactions.interface";
+import { lightGreen100 } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 
 interface UserContextProps {
   user: IUser | IUserNoVerified;
   initialScreen: string;
+  transactions: BalanceList[];
   setUser: (user: IUser | null) => void;
   handleLogin: (credentials: IUserLogin) => Promise<void>;
   handleRegister: (credentials: IUserRegistration) => Promise<void>;
   handleLogOut: () => void;
+  handleUserBalance: () => Promise<void | { code: number; response: BalanceList[]; }>
 }
 
 const UserContext = createContext<UserContextProps | undefined>(undefined)
@@ -19,43 +24,70 @@ interface UserProviderProps {
 }
 
 const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<IUserNoVerified | IUser | undefined>();
+  const [user, setUser] = useState<any>();
 
-  const [initialScreen, setInitialScreen] = useState("Loading")
+  const [initialScreen, setInitialScreen] = useState("Loading");
+
+  const [transactions, setTransactions] = useState<BalanceList[] | undefined>()
 
   useEffect(() => {
-    handleAutoLogin()
+    handleAutoLogin();
   }, [])
   
+  const timeout = (ms: number, promise: Promise<any>) => {
+    return new Promise((resolve, reject) => {
+      const timeoutId = setTimeout(() => {
+        clearTimeout(timeoutId);
+        reject(new Error('Tiempo de espera agotado'));
+      }, ms);
+
+      promise.then(
+        (result: any) => {
+          clearTimeout(timeoutId);
+          resolve(result);
+        },
+        (error: any) => {
+          clearTimeout(timeoutId);
+          reject(error);
+        }
+      );
+    });
+  };
+
   const handleAutoLogin = async () => {
     const token = await SecureStore.getItemAsync("token");
     const userId = await SecureStore.getItemAsync("userId");
 
-    console.log("token", token.length)
-    console.log("userId", userId.length)
-
-    if (token.length === 0 || userId.length === 0) {
-      setInitialScreen("Login")
+    if (token === null || userId === null) {
+      setInitialScreen("Login");
     } else {
-      return await getOne(userId, token)
-        .then((res) => {
-          res.code && res.code === 401
-            ? console.log("se vencio el token", res.code)
-            : setUser(res.response)
-          return res
-        }).then((data) => data.code === 200 ? setInitialScreen("Dashboard") : setInitialScreen("Login"))
+      try {
+        const res: any = await timeout(20000, getOne(userId, token)); // Espera máximo 20 segundos
+        if (res.code !== 200) {
+          setInitialScreen("Login");
+        } else {
+          setUser(res.response);
+          res.code === 200 ? setInitialScreen("Dashboard") : setInitialScreen("Login");
+        }
+      } catch (error) {
+        setInitialScreen("Login");
+      }
     }
-  }
+  };
 
   const handleLogin = async (credentials: IUserLogin) => {
-    try {
-      const response = await login(credentials);
-      await getOne(response.data.id, response.token).then((data) => setUser(data.response))
-      await SecureStore.setItemAsync("token", response.token)
-      await SecureStore.setItemAsync("userId", JSON.stringify(response.data.id))
-      return response.data;
-    } catch (error) {
-      throw new Error("Credenciales incorrectas!")
+    const response = await login(credentials)
+    if (!response.data) {
+      throw new Error(`Combinacion de correo y contraseña incorrectos...`)
+    } else {
+      const getUser = await getOne(response.data.id, response.token)
+        .then(async (data) => {
+          await SecureStore.setItemAsync("token", response.token)
+          await SecureStore.setItemAsync("userId", JSON.stringify(response.data.id))
+          setUser(data.response)
+          return data
+        })
+      return getUser
     }
   }
   
@@ -64,22 +96,44 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       const registerData = await register(credentials);
       return registerData;
     } catch (error) {
-      throw new Error("Credenciales incorrectas!")
+      throw new Error(`Error: ${error}`)
     }
   }
 
   const handleLogOut = async () => {
-    setUser(undefined)
-    await SecureStore.setItemAsync("token", "")
-    await SecureStore.setItemAsync("userId", "")
+    await SecureStore.deleteItemAsync("token")
+    await SecureStore.deleteItemAsync("userId")
   }
 
   const handleResetPassword = async (email: string) => {
     return await resetPassword(email).then((data) => console.log(data))  
   }
 
+  const handleUserBalance = async () => {
+    const token = await SecureStore.getItemAsync("token");
+    const userId = await SecureStore.getItemAsync("userId")
+    return await getBalance(userId, token)
+      .then((data: {code: number, response: BalanceList[]}) => {
+        setTransactions(data.response)
+        return data
+      })
+      .catch((error) => {
+        console.log("error on handleUserBalance", error)
+        return error
+      })
+  }
+
   return (
-    <UserContext.Provider value={{ user, initialScreen, setUser, handleLogin, handleRegister, handleLogOut }}>
+    <UserContext.Provider value={{ 
+      user, 
+      initialScreen, 
+      setUser, 
+      handleLogin, 
+      handleRegister, 
+      handleLogOut,
+      transactions,
+      handleUserBalance
+    }}>
       {children}
     </UserContext.Provider>
   );

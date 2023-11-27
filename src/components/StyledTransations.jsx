@@ -1,97 +1,121 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { StyleSheet, View, FlatList, Dimensions } from 'react-native'
 import { Icon } from "@rneui/themed"
 import theme from "../theme"
 import StyledText from "./StyledText"
+import * as SecureStore from "expo-secure-store";
+import moment from 'moment';
+import 'moment/locale/es';
+import { getExchangeRates, getTransactionsList } from '../api/transactions/transactions'
+import Loader from './Loader'
 
-const data = [
-  { 
-    icon: <Icon name='arrow-top-right-thick' type='material-community'  color={theme.colors.green} size={20}/>,
-    coin: "USDT",
-    coinName: "Tether",
-    transactionType: "send",
-    _id: "6fp",
-    value: "5,52",
-    transactionDate: "13-06-23"
-  },
-  { 
-    icon: <Icon name='arrow-top-right-thick' type='material-community'  color={theme.colors.green} size={20}/>,
-    coin: "ETH",
-    coinName: "Ethereum",
-    transactionType: "receive",
-    _id: "7gq",
-    value: "2,50",
-    transactionDate: "15-06-23"
-  },
-  { 
-    icon: <Icon name='arrow-top-right-thick' type='material-community'  color={theme.colors.green} size={20}/>,
-    coin: "USDT",
-    coinName: "Tether",
-    transactionType: "send",
-    _id: "8hr",
-    value: "5,52",
-    transactionDate: "15-06-23"
-  },
-  { 
-    icon: <Icon name='arrow-top-right-thick' type='material-community'  color={theme.colors.green} size={20}/>,
-    coin: "ETH",
-    coinName: "Ethereum",
-    transactionType: "receive",
-    _id: "9is",
-    value: "2,50",
-    transactionDate: "14-06-23"
-  },
-]
 
-// organizacion de las transacciones por fecha
-const transactionsByDate = {};
+const StyledTransations = ({customHeight, pagination}) => {
+  moment.locale('es');
 
-data.forEach(transaction => {
-  const date = transaction.transactionDate;
-  if (!transactionsByDate[date]) {
-    transactionsByDate[date] = [];
+  const [transactionData, setTransactionData] = useState();
+
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const transactions = async () => {
+      setLoading(true)
+      if (!transactionData) {
+          const token = await SecureStore.getItemAsync("token")
+          return await getTransactionsList(pagination, token)
+            .then((data) => {
+              setTransactionData(data.response.map((data) => data))
+              setLoading(false)
+            })
+            .catch((error) => {
+              console.log("error", error)
+              setLoading(false)
+            })
+        } else {
+          setLoading(false)
+        }
+    }
+    
+    transactions()
+  }, [transactionData]);
+
+  // organizacion de las transacciones por fecha
+  const transactionsByDate = {};
+
+  if (transactionData !== undefined) {
+    transactionData.forEach(transaction => {
+      const date = transaction.created_date;
+      if (!transactionsByDate[date]) {
+        transactionsByDate[date] = [];
+      }
+      transactionsByDate[date].push(transaction);
+    });
   }
-  transactionsByDate[date].push(transaction);
-});
 
-const sortedTransactions = Object.keys(transactionsByDate).sort((a, b) => b.localeCompare(a)).map(date => {
-  return {
-    date: date,
-    transactions: transactionsByDate[date],
-  };
-});
 
-const StyledTransations = ({title, customHeight}) => {
+  const sortedTransactions = Object.keys(transactionsByDate).sort((a, b) => b.localeCompare(a)).map(date => {
+    return {
+      date: date,
+      transactions: transactionsByDate[date],
+    };
+  });
 
   const renderTransactionItem = ({ item }) => (
     <View key={Math.random()}>
       <View style={{ backgroundColor: theme.colors.lightgray, paddingVertical: 1, borderTopColor: theme.colors.lightBlue, borderTopWidth: 2, marginTop: 2 }}>
-        <StyledText style={styles.dateText}>{item.date}</StyledText>
+        <StyledText style={styles.dateText}>{moment(item.date).format('DD [de] MMMM [del] YYYY')}</StyledText>
       </View>
       {item.transactions.map(transaction => (
-        <View style={styles.transactionBox} key={Math.random()}>
-          <View>
-            {
-              transaction.transactionType === "receive"
-                ? <Icon key={Math.random()} name='arrow-bottom-left-thick' type='material-community'  color={theme.colors.green} size={20}/>
-                : <Icon key={Math.random()} name='arrow-top-right-thick' type='material-community'  color={theme.colors.red} size={20}/>
-            }
-          </View>
-          <View style={styles.coinContainer}>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
-              <StyledText fontSize="medium" fontWeight="bold" color="blue">{transaction.coin}</StyledText>
-              <StyledText fontSize="base" color="gray">{transaction.coinName}</StyledText>
+        <View style={styles.transactionBox} key={transaction.id}>
+          <View style={[styles.coinContainer]}>
+            {/* CoinName */}
+            <View style={{flexDirection: 'column', justifyContent: 'flex-start', width: width * 0.137}}>
+              <StyledText fontSize="medium" fontWeight="bold" color="blue">{transaction.currency_from.symbol}</StyledText>
+              <StyledText fontSize="base" color="gray">{transaction.currency_from.name}</StyledText>
             </View>
-            <StyledText fontSize="base" color="gray">
-              {
-                transaction.transactionType === "receive" ? "RECIBISTE" : "ENVIASTE"
-              }
-            </StyledText>
+            {/* avatar */}
+            <Icon name="account-circle" type='material-community' color={theme.colors.blue} size={25}/>
+            {/* Status */}
+            <View style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', justifyContent: 'center'}}>
+              <View>
+                <StyledText fontSize="base" color="blue" fontWeight="extraBold">
+                  {
+                    transaction.transactionType.name
+                  }
+                </StyledText>
+              </View>
+              <View style={{flexDirection: 'row', gap: 3, alignItems: 'center'}}>
+                {
+                  transaction.status.color === "default" 
+                  ? <Icon name='checkbox-blank-circle' type='material-community' color="#ECAA00" size={8}/> 
+                    : transaction.status === "success" 
+                    ? <Icon name='checkbox-blank-circle' type='material-community' color={theme.colors.green} size={8}/>
+                    : <Icon name='checkbox-blank-circle' type='material-community' color={theme.colors.red} size={8}/>
+                }
+                <StyledText color="blue">
+                  {
+                    transaction.status.color === "default" 
+                    ? "Pendiente"
+                      : transaction.status === "success" 
+                      ? "Procesando"
+                      : "Cancelada"
+                  }
+                </StyledText>
+              </View>
+            </View>
           </View>
-          <View>
-            <StyledText fontSize="lg" fontWeight="extraBold" color={`${transaction.transactionType === "receive" ? "green" : "red"}`}>
-              ${transaction.transactionType === "receive" ? "" : "-"}{transaction.value}
-            </StyledText>
+          <View style={styles.balanceContainer}>
+            <View style={{flexWrap: "nowrap"}}>
+              <StyledText fontSize="medium" fontWeight="extraBold" color="blue">
+                {/* {transaction.currency_from.symbol}  */}
+                {transaction.amount}
+              </StyledText>
+            </View>
+            <View>
+              <StyledText fontSize="normal" fontWeight="extraLight" color="blue">
+                $ {"0.00"}
+              </StyledText>
+            </View>
           </View>
         </View>
       ))}
@@ -101,28 +125,24 @@ const StyledTransations = ({title, customHeight}) => {
   return (
     <View style={[styles.container, {height: customHeight ? height * customHeight : height * sortedTransactions.length / 7}]}>
       <View style={styles.box}>
+        <View key={Math.random()} style={{paddingHorizontal: 20, paddingVertical: 5,}}>
+          <StyledText fontSize="normal" fontWeight="normal" color="blue">Ultimas Transacciones</StyledText>
+        </View>
         {
-          title === typeof string
+          loading 
             ? (
-              <View key={Math.random()} style={{paddingHorizontal: 20, paddingVertical: 5,}}>
-                <StyledText fontSize="medium" fontWeight="normal" color="blue">{title}</StyledText>
+              <View style={{justifyContent: 'center', alignItems: 'center', height: "100%", width: "100%"}}>
+                <Loader loading={loading} size={"large"} color={theme.colors.blue}/>
               </View>
             ) : (
-              <View key={Math.random()} style={{flexDirection: 'row', paddingHorizontal: 25, paddingVertical: 5, justifyContent: 'space-between'}}>
-                {
-                  title.map(item => (
-                    <StyledText fontSize="base" fontWeight="bold" color="blue">{item}</StyledText>
-                  ))
-                }
-              </View>
+              <FlatList
+                data={sortedTransactions}
+                renderItem={renderTransactionItem}
+                key={Math.random()}
+                keyExtractor={(item) => item.date}
+              />
             )
         }
-        <FlatList
-          data={sortedTransactions}
-          renderItem={renderTransactionItem}
-          key={Math.random()}
-          keyExtractor={(item) => item.date}
-        />
       </View>
     </View>
   )
@@ -156,13 +176,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   coinContainer: {
-    marginRight: 80,
-    justifyContent: "flex-end"
+    flexDirection: 'row',
+    gap: 5,
+    justifyContent: "flex-start",
+    alignItems: 'center',
+    width: width * 0.45,
+    paddingHorizontal: 7
+  },
+  balanceContainer: {
+    width: width * 0.48, 
+    alignItems: 'flex-end', 
+    flexDirection: 'column', 
+    paddingHorizontal: 7
   },
   transactionBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     paddingVertical: 5,
     borderTopWidth: 1,
     borderTopColor: theme.colors.lightBlue

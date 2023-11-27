@@ -36,7 +36,7 @@ const Transactions = () => {
           </TouchableOpacity>
         </View>
         <View style={{flex: 1, marginBottom: 100}}>
-          <StyledTransations title={["Transaccion", "Moneda", "Monto"]}/>
+          <StyledTransations/>
         </View>
       </View>
     </SafeAreaView>

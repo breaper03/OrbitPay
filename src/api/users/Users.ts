@@ -1,18 +1,16 @@
-import {CRIPTOVEN_API_URL} from "@env"
+// import {CRIPTOVEN_API_URL} from "@env"
 import { IUserLogin, IUserRegistration } from "../../interfaces/Users.interface"
 
 export const login = async (credentials: IUserLogin) => 
-  await fetch(`${CRIPTOVEN_API_URL}/login_check`, {
+  await fetch(`http://54.220.205.31/api/login_check`, {
     method: "POST",
     body: JSON.stringify(credentials),
     redirect: "follow"
   })
   .then((response) => response.json())
   .then((data) => data)
-  .catch((error) => {
-    console.log("errorLoginOnAPI", error)
-    throw new Error(error);
-  })
+  .catch((error) => new Error(error))
+
 
 
 export const register = async (credentials: any) => {
@@ -24,7 +22,7 @@ export const register = async (credentials: any) => {
   formdata.append("userType", userType.toString());
   formdata.append("reside", reside.toString());
 
-  return await fetch(`${CRIPTOVEN_API_URL}/users/register`, {
+  return await fetch(`http://54.220.205.31/api/users/register`, {
     method: "POST",
     body: formdata,
     redirect: "follow"
@@ -42,7 +40,7 @@ export const resetPassword = async (email: string) => {
   formdata.append("email", email.toString());
   formdata.append("callback_url", "https://app.criptoven.io/users/recover-password");
 
-  return await fetch(`${CRIPTOVEN_API_URL}/users/forgot-password`, {
+  return await fetch(`http://54.220.205.31/api/users/forgot-password`, {
     method: 'POST',
     body: formdata,
     redirect: 'follow'
@@ -50,7 +48,7 @@ export const resetPassword = async (email: string) => {
 } 
 
 export const getOne = async (userId: string, token: string) => 
-  await fetch(`${CRIPTOVEN_API_URL}/users/${userId}`, {
+  await fetch(`http://54.220.205.31/api/users/${userId}`, {
     method: "GET",
     redirect: "follow",
     headers: {
@@ -64,6 +62,6 @@ export const getOne = async (userId: string, token: string) =>
   })
   .catch((error) => {
     console.log("error en fetch", error)
-    throw new Error(error);
+    throw new Error(`Error getone: ${error}`);
   })
 

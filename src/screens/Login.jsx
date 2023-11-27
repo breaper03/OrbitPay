@@ -39,7 +39,7 @@ const Login = () => {
     email: undefined,
     passwordFirst: undefined,
     passwordSecond: undefined,
-    userType: undefined,
+    userType: 0,
     reside: undefined
   });
 
@@ -48,11 +48,11 @@ const Login = () => {
   const [openCountry, setOpenCountry] = useState(false)
 
   const [registerError, setRegisterError] = useState({
-    email: false,
-    passwordFirst: false,
-    passwordSecond: false,
-    userType: false,
-    reside: false
+    email: true,
+    passwordFirst: true,
+    passwordSecond: true,
+    userType: true,
+    reside: true
   });
 
   const [loginError, setLoginError] = useState({
@@ -111,19 +111,17 @@ const Login = () => {
     const { email, passwordFirst, passwordSecond, reside, userType } = formValueRegister;
   
     // Verificar que todos los campos estén llenos y cumplan con las expresiones regulares
-    const isEmailValid = !!(email && regexEmail.test(email));
-    const isPasswordFirstValid = !!(passwordFirst && regexPwd.test(passwordFirst));
-    const isPasswordSecondValid = !!(passwordSecond && passwordSecond === passwordFirst);
+    const isEmailValid = !!(email !== undefined && regexEmail.test(email));
+    const isPasswordFirstValid = !!(passwordFirst !== undefined && regexPwd.test(passwordFirst));
+    const isPasswordSecondValid = !!(passwordSecond !== undefined && passwordSecond === passwordFirst);
     const isResideValid = !!(reside && reside.trim().length > 0);
-    const isUserTypeValid = !!(userType && userType.trim().length > 0);
-  
+
     // Actualizar el estado de los errores
     setRegisterError({
       email: !isEmailValid,
       passwordFirst: !isPasswordFirstValid,
       passwordSecond: !isPasswordSecondValid,
       reside: !isResideValid,
-      userType: !isUserTypeValid
     });
   };
 
@@ -137,14 +135,6 @@ const Login = () => {
       reside: option.label
     });
     setOpenCountry(false)
-  }
-  const handleSelectUserType = (option) => {
-    setUserType(option.value)
-    setOpenUsertype(false)
-    setFormValueRegister({
-      ...formValueRegister,
-      userType: option.label
-    })
   }
 
   const handleLoginChange = (name, value) => {
@@ -161,25 +151,33 @@ const Login = () => {
     setLoading(true)
     validateLoginParams()
     const errors = checkLoginErrors()
-    console.log(errors)
     if (!errors) {
-      await handleLogin(formValueLogin)
-        .then(() => navigaton.navigate("Dashboard"))
-        .catch((error) => setSubmitError({error: true, message: error}))
-    } 
-    setLoading(false)
+      return await handleLogin(formValueLogin)
+        .then((data) => {
+          data.code === 200 && navigaton.navigate("Dashboard")
+          setLoading(false)
+        })
+        .catch((error) => {
+          setLoading(false)
+          setSubmitError({error: true, message: error})
+        })
+    } else {
+      validateLoginParams()
+      checkLoginErrors()
+      setLoading(false)
+    }
   }
 
   const register = async () => {
     setLoading(true)
     validateRegisterParams()
     const errors = checkRegisterErrors()
-    if (!errors) {
+    if (errors) {
       await handleRegister(formValueRegister)
-        .then(() => setValue("Iniciar Sesion"))
         .catch((error) => {
           setSubmitError({error: true, message: error})
         })
+        setValue("Iniciar Sesion")
     }
     setLoading(false)
   }
@@ -258,7 +256,7 @@ const Login = () => {
                     <View style={{flexDirection: 'row', gap: 10, flexWrap: 'nowrap', width: "100%", alignItems: 'center', justifyContent: 'space-around', marginBottom: 10, marginTop: 20}}>
                       <TouchableOpacity 
                         onPress={() => setOpenCountry(true)}
-                        style={{borderWidth: 2, borderColor: `${registerError.reside ? theme.colors.red : theme.colors.blue}`, borderRadius: 15, paddingVertical: 8, alignItems:'center', elevation: 3, backgroundColor: theme.colors.white, minWidth: "45%"}}>
+                        style={{borderWidth: 2, borderColor: `${registerError.reside ? theme.colors.red : theme.colors.blue}`, borderRadius: 15, paddingVertical: 8, alignItems:'center', elevation: 3, backgroundColor: theme.colors.white, minWidth: "100%"}}>
                         <StyledText color="blue" fontWeight="bold" fontSize="normal">
                           {reside !== undefined ? reside : "Nacionalidad:"}
                         </StyledText>
@@ -273,7 +271,7 @@ const Login = () => {
                           <View style={styles.modalContent}>
                             <View style={{flex: 1, alignItems: 'center', justifyContent: 'space-around', gap: 1}}>
                               <StyledText style={{textAlign: "center", fontWeight: "bold", fontSize: theme.fontSize.medium, color: "gray", marginTop: 20}}>
-                                Seleccione su residencia:</StyledText>
+                                Seleccione su nacionalidad:</StyledText>
                               <View style={{flexDirection: 'column', justifyContent: 'space-between', gap: 5}}>
                                 {
                                   resideData.map((item) => (
@@ -292,51 +290,6 @@ const Login = () => {
                                         alignItems: 'center',
                                       }}
                                       onPress={() => handleSelectCountry(item)}>
-                                      <StyledText color="blue" fontSize="normal" fontWeight="bold">{item.value}</StyledText>
-                                    </TouchableOpacity>
-                                  ))
-                                }
-                              </View>
-                            </View>
-                          </View>
-                        </View>
-                      </Modal>
-                      <TouchableOpacity 
-                        onPress={() => setOpenUsertype(true)}
-                        style={{borderWidth: 2, borderColor: `${registerError.userType ? theme.colors.red : theme.colors.blue}`, borderRadius: 15, paddingVertical: 8, alignItems:'center', elevation: 3, backgroundColor: theme.colors.white, minWidth: "45%"}}>
-                        <StyledText color="blue" fontWeight="bold" fontSize="normal">
-                          {userType !== undefined ? userType : "Tipo de persona:"}
-                        </StyledText>
-                      </TouchableOpacity>
-                      <Modal
-                        animationType="slide"
-                        transparent={true}
-                        visible={openUsertype}
-                        onRequestClose={() => setOpenUsertype(false)}
-                      >
-                        <View style={styles.modalContainer}>
-                          <View style={styles.modalContent}>
-                            <View style={{flex: 1, alignItems: 'center', justifyContent: 'space-around', gap: 1}}>
-                              <StyledText style={{textAlign: "center", fontWeight: "bold", fontSize: theme.fontSize.medium, color: "gray", marginTop: 20}}>
-                                Seleccione el tipo de persona:</StyledText>
-                              <View style={{flexDirection: 'column', justifyContent: 'space-between', gap: 5}}>
-                                {
-                                  userTypeData.map((item) => (
-                                    <TouchableOpacity 
-                                      style={{
-                                        borderWidth: 2,
-                                        marginBottom: 10,
-                                        backgroundColor: theme.colors.white,
-                                        borderColor: theme.colors.lightBlue,
-                                        borderRadius: 10,
-                                        elevation: 5,
-                                        flexDirection: 'row', 
-                                        width: width * 0.70, 
-                                        height: 50, paddingHorizontal: 10, 
-                                        justifyContent: 'center', 
-                                        alignItems: 'center',
-                                      }}
-                                      onPress={() => handleSelectUserType(item)}>
                                       <StyledText color="blue" fontSize="normal" fontWeight="bold">{item.value}</StyledText>
                                     </TouchableOpacity>
                                   ))
@@ -421,7 +374,9 @@ const Login = () => {
             }}
             style={styles.buttom}
           >
-            <StyledText color="white" fontSize="medium" fontWeight="bold">{loading ? <Loader loading={loading} color={theme.colors.white} size={"small"}/> : value}</StyledText>
+            <StyledText color="white" fontSize="medium" fontWeight="bold">
+              {loading ? <Loader loading={loading} color={theme.colors.white} size={"small"}/> : value}
+            </StyledText>
           </TouchableOpacity>
         </View>
 

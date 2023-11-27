@@ -1,31 +1,38 @@
 {
   "expo": {
-    "name": "OrbitPay",
+    "name": "CriptoVen Trade",
     "slug": "OrbitPay",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/orbitLG.png",
-    "userInterfaceStyle": "light",
+    "icon": "./assets/OrbitIconApp.png",
+    "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/OrbitMedium.png",
-      "resizeMode": "cover",
-      "backgroundColor": "#fafafa"
+      "image": "./assets/orbitInitial.png",
+      "backgroundColor": "#00000000",
+      "resizeMode": "cover"
     },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow CriptoVen Trade access your camera.",
+          "microphonePermission": 	"Allow CriptoVen Trade to access your microphone"
+        }
+      ]
+    ],
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.orbitpay.app"
+      "bundleIdentifier": "com.criptoventrade.app"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/Orbit.png",
-        "backgroundColor": "#fafafa",
-        "resizeMode": "fill"
+        "foregroundImage": "./assets/OrbitIconApp.png",
+        "backgroundColor": "#fafafa"
       },
-      "package": "com.orbitpay.app",
-      "version": "0.0.1"
+      "package": "com.orbitpay.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
