@@ -9,5 +9,21 @@ import TransactionComplete from "./TransactionComplete";
 import Login from "./Login";
 import UserDashboard from "./UserDashboard";
 import LoadingScreen from "./LoadingScreen";
+import ResetPassword from "./ResetPassword";
+import CompleteRegister from "./CompleteRegister";
 
-export {Home, Orbit, Transactions, Pay, Receive, Swap, Resume, TransactionComplete, Login, UserDashboard, LoadingScreen}
+export {
+  Home, 
+  Orbit, 
+  Transactions, 
+  Pay, 
+  Receive, 
+  Swap, 
+  Resume, 
+  TransactionComplete, 
+  Login, 
+  UserDashboard, 
+  LoadingScreen,
+  ResetPassword,
+  CompleteRegister
+}

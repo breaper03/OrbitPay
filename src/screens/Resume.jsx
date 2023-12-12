@@ -5,18 +5,25 @@ import { StatusBar } from 'expo-status-bar'
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { StyledText } from '../components';
 import theme from '../theme';
+import { getExchangeRates, getTransactionFees, sendMoney, swapMoney } from '../api/transactions/transactions';
+import * as SecureStore from "expo-secure-store"
+import Loader from '../components/Loader';
 
 const {width, height} = Dimensions.get("window");
 
-const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-
 const Resume = () => {
+
+  useEffect(() => {
+    handleErros()
+    handleFee()
+  }, [formData])
+  
 
   const descriptionRef = useRef()
 
   const [inputError, setInputError] = useState({
-    email: false,
-    description: false,
+    email: {error: false, submitTry: false},
+    description: {error: false, submitTry: false},
   })
 
   const [modalVisible, setModalVisible] = useState(false)
@@ -26,7 +33,14 @@ const Resume = () => {
     description: ""
   });
 
-  const {amount, coin} = useRoute().params
+  const [cryptoAmount, setCryptoAmount] = useState({
+    cryptoFee: 0,
+    cryptoTotal: 0
+  })
+
+  const [fee, setFee] = useState()
+
+  const {amount, coin, dual, lastScreen} = useRoute().params
 
   const navigation = useNavigation();
   
@@ -37,16 +51,73 @@ const Resume = () => {
     }));
   };
 
-  const handleOpenModal = () => {
-    if (!emailRegex.test(formData.email)) {
-      setInputError({email: true, description: inputError.description});
-      !formData.description && setInputError({description: true, email: inputError.email});
-    } else setModalVisible(true)
+  const handleErros = (submitTry) => {
+    errorsOnDirection = !formData.email || formData.email.trim().length <= 0 || formData.email.trim().length < 20
+    errorsOnDescription = !formData.description || formData.description.trim().length <= 0
+    
+    submitTry
+      ? setInputError({
+        email: {error: errorsOnDirection, submitTry: true},
+        description: {error: errorsOnDescription, submitTry: true}
+      })
+      : setInputError({
+        email: {error: errorsOnDirection, submitTry: false},
+        description: {error: errorsOnDescription, submitTry: false}
+      })
   }
 
-  const handleSubmit = (e) => {
-    navigation.navigate("TransactionComplete", {email: formData.email, description: formData.description, amount: amount, coin: coin})
+  const checkErrors = () => Object.values(inputError).some((value) => value.error === true);
+
+  const handleOpenModal = () => {
+    if (!dual) {
+      submitTry = true
+      handleErros(submitTry)
+      const errors = checkErrors()
+      if (!errors) setModalVisible(true)
+    } else {
+      setModalVisible(true)
+    }
   }
+
+  const getCryptoAmount = async (total, fee) => {
+    const token = await SecureStore.getItemAsync("token")
+    const getCryptoAmount = await getExchangeRates("USD", coin.currency_symbol, token)
+    console.log(total, fee)
+    // convertir el monto en usd a la criptomoneda seleccionadad por el usuario
+    const cryptoTotal = (+total / getCryptoAmount.response[`USD${coin.currency_symbol}`].amountUnformatted).toFixed(8)
+    const cryptoFee = (+fee / getCryptoAmount.response[`USD${coin.currency_symbol}`].amountUnformatted).toFixed(8)
+    setCryptoAmount({cryptoTotal, cryptoFee})
+    console.log(cryptoAmount)
+  }
+
+  const handleSubmit = async () => {
+    const token = await SecureStore.getItemAsync("token")
+    if (dual) {
+      console.log("swap")
+      const req = await swapMoney(coin.currency_symbol, dual.currency_symbol, cryptoAmount, token)
+        .then((data) => {
+          console.log("dataResume", data)
+          return data
+        })
+        .catch((error) => {
+          console.log("error", error)
+          return error
+        })
+      // navigation.navigate("TransactionComplete", {email: formData.email, description: formData.description, amount: amount, coin: coin})
+    } else {
+      const req = await sendMoney(coin.currency_symbol, cryptoAmount, formData.email, formData.description, token)
+        .then((data) => {
+          console.log("dataResume", data)
+          return data
+        })
+        .catch((error) => {
+          console.log("error", error)
+          return error
+        })
+      // navigation.navigate("TransactionComplete", {email: formData.email, description: formData.description, amount: amount, coin: coin})
+    }
+  }
+
   const getExchange = () => {
     const exhange = parseFloat(amount.replace(",", ".")) / coin.exchange_rate
     return parseFloat(exhange.toFixed(8));
@@ -56,7 +127,7 @@ const Resume = () => {
     const formattedNumber = number.replace('-', '').replace(',', '.');
   
     // Redondear a 7 decimales
-    const roundedNumber = Number(formattedNumber).toFixed(7);
+    const roundedNumber = Number(formattedNumber).toFixed(8);
   
     return roundedNumber.replace("-", "");
   }
@@ -70,16 +141,27 @@ const Resume = () => {
     return plusNumber;
   };
 
+  const handleFee = async () => {
+    // currency from sera el selected one en caso de que sea una operacion swap
+    const token = await SecureStore.getItemAsync("token");
+    await getTransactionFees(amount, coin.currency_symbol, token)
+      .then((data) => {
+        setFee(data.response)
+        console.log(typeof amount, "operacion")
+        getCryptoAmount(+amount + +data.response, data.response)
+      })
+  }
+
   return (
     <>
       <StatusBar style="inverted" backgroundColor={theme.colors.blue} hidden={false} translucent={true}/>
       <View style={styles.container}>
         <View style={[{ backgroundColor: theme.colors.blue, height: "30%" }]}/>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Pay")} style={styles.goBack}>
+        <TouchableOpacity onPress={() => navigation.navigate(lastScreen, {coin: coin, amount: amount})} style={styles.goBack}>
           <View style={styles.itemsGoBack}>
             <Icon type='material-icons' name='chevron-left' color="white" size={55}/>
-            <StyledText color="white" fontSize="xxxl" fontWeight="bold">Orbit Pay</StyledText>
+            <StyledText color="white" fontSize="xxxl" fontWeight="bold">Volver</StyledText>
           </View>
         </TouchableOpacity>
 
@@ -132,67 +214,149 @@ const Resume = () => {
           </View>
           <View style={{gap: 5, paddingHorizontal: 4}}>
             <StyledText fontWeight="bold" fontSize="medium" color="black">Monto a enviar</StyledText>
-            <View
-              style={{
-                marginBottom: 10,
-                backgroundColor: theme.colors.white,
-                borderRadius: 10,
-                flexDirection: 'row', 
-                height: 50, width: "100%",
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-              }}
-            >
-              <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10}}>
-                <View>
-                  <Image source={{uri: `${coin.currency_icon_path}`}} width={20} height={20}/>
-                </View>
-                <View>
-                  <StyledText fontSize="base" fontWeight="light" color="blue">{coin.currency_name}</StyledText>
-                  <StyledText fontSize="xs" fontWeight="light" color="blue">{coin.currency_symbol}</StyledText>
-                </View>
-              </View>
-              <View style={{alignItems: 'flex-end'}}>
-                <StyledText fontSize="normal" fontWeight="base" color="blue">{getExchange()}</StyledText>
-                <StyledText fontSize="medium" fontWeight="bold" color="blue">$ {amount}</StyledText>
-              </View>
-            </View>
+            {
+              dual
+                ? (
+                  <View
+                    style={{
+                      marginBottom: 10,
+                      backgroundColor: theme.colors.white,
+                      borderRadius: 10,
+                      flexDirection: 'row', 
+                      height: 50, width: "100%",
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                    }}
+                  >
+                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10}}>
+                      <View>
+                        <Image source={{uri: `${coin.currency_icon_path}`}} width={20} height={20}/>
+                      </View>
+                      <View>
+                        <StyledText fontSize="base" fontWeight="light" color="blue">{coin.currency_name}</StyledText>
+                        <StyledText fontSize="xs" fontWeight="light" color="blue">{coin.currency_symbol}</StyledText>
+                      </View>
+                    </View>
+                    <Icon type='ant-design' name='swap' color={theme.colors.blue} size={20}/>
+                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10}}>
+                      <View>
+                        <Image source={{uri: `${dual.currency_icon_path}`}} width={20} height={20}/>
+                      </View>
+                      <View>
+                        <StyledText fontSize="base" fontWeight="light" color="blue">{dual.currency_name}</StyledText>
+                        <StyledText fontSize="xs" fontWeight="light" color="blue">{dual.currency_symbol}</StyledText>
+                      </View>
+                    </View>
+                    <View style={{alignItems: 'flex-end'}}>
+                      <StyledText fontSize="normal" fontWeight="base" color="blue">{getExchange()}</StyledText>
+                      <StyledText fontSize="medium" fontWeight="bold" color="blue">$ {amount}</StyledText>
+                    </View>
+                  </View>
+                ) 
+                : (
+                  <View
+                    style={{
+                      marginBottom: 10,
+                      backgroundColor: theme.colors.white,
+                      borderRadius: 10,
+                      flexDirection: 'row', 
+                      height: 50, width: "100%",
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                    }}
+                  >
+                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10}}>
+                      <View>
+                        <Image source={{uri: `${coin.currency_icon_path}`}} width={20} height={20}/>
+                      </View>
+                      <View>
+                        <StyledText fontSize="base" fontWeight="light" color="blue">{coin.currency_name}</StyledText>
+                        <StyledText fontSize="xs" fontWeight="light" color="blue">{coin.currency_symbol}</StyledText>
+                      </View>
+                    </View>
+                    <View style={{alignItems: 'flex-end'}}>
+                      <StyledText fontSize="normal" fontWeight="bold" color="blue">{getExchange()}</StyledText>
+                      <StyledText fontSize="medium" fontWeight="bold" color="gray">$ {amount}</StyledText>
+                    </View>
+                  </View>
+                )
+            }
             <View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between'}}>
               <StyledText fontWeight="bold" fontSize="medium" color="black">Comision por servicio</StyledText>
-              <StyledText fontWeight="bold" fontSize="medium" color="gray">0,52</StyledText>
+              <View style={{alignItems: 'flex-end'}}>
+                <StyledText fontWeight="bold" fontSize="normal" color="blue">{
+                  !cryptoAmount.cryptoFee > 0.00000001
+                    ? <Loader size="small" color={theme.colors.blue}/>
+                    : cryptoAmount.cryptoFee
+                }</StyledText>
+                <StyledText fontWeight="bold" fontSize="normal" color="gray">{
+                  !fee
+                    ? <Loader size="small" color={theme.colors.blue}/>
+                    : fee.toFixed(2)
+                }</StyledText>
+              </View>
             </View>
             <View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'flex-end', gap: 50, marginTop: 15}}>
               <StyledText fontWeight="bold" fontSize="medium" color="blue">Monto total</StyledText>
-              <StyledText fontWeight="bold" fontSize="medium" color="gray">{parseFloat(amount) + 0.52}</StyledText>
-            </View>
-          </View>
-          <View>
-            <View style={{alignItems: 'center', marginTop: 10, paddingHorizontal: 10, marginBottom: 10}}>
-              <StyledText fontWeight="bold" fontSize="lg" color="blue">Datos del Destinatario:</StyledText>
-              <View style={{width: "100%", gap: 10, marginTop: 10}}>
-                <View>
-                  <StyledText>
-                    Correo OrbitPay* {inputError.email ? <StyledText color="red" fontSize="sm" fontWeight="extralight">(Correo o Usuario invalido)</StyledText> : ""}
-                  </StyledText>
-                  <TextInput placeholder='pruebas.criptoven@gmail.com' onSubmitEditing={() => descriptionRef.current.focus()} style={styles.input} onChangeText={(text) => handleInputChange("email", text)}/>
-                </View>
-                <View>
-                  <StyledText>
-                    Descripcion* {
-                      inputError.description ? <StyledText color="red" fontSize="sm" fontWeight="extralight">(Descripcion invalida)</StyledText> : ""
-                    }
-                  </StyledText>
-                  <TextInput ref={descriptionRef} placeholder='Prestamo' style={styles.input} onChangeText={(text) => handleInputChange("description", text)}/>
-                </View>
+              <View style={{alignItems: 'flex-end'}}>
+                <StyledText fontWeight="bold" fontSize="normal" color="blue">{
+                  !cryptoAmount.cryptoTotal > 0.00000001
+                    ? <Loader size="small" color={theme.colors.blue}/>
+                    : cryptoAmount.cryptoTotal
+                }</StyledText>
+                <StyledText fontWeight="bold" fontSize="normal" color="gray">{
+                  !fee
+                    ? <Loader size="small" color={theme.colors.blue}/>
+                    : (parseFloat(amount) + fee).toFixed(2)
+                }</StyledText>
               </View>
             </View>
-            <TouchableOpacity 
-              onPress={() => handleOpenModal()}
-              style={{backgroundColor: theme.colors.blue, marginTop: 10, paddingVertical: 10, alignItems: 'center', borderRadius: 20}}
-            >
-              <StyledText color="white" fontSize="medium" fontWeight="bold">Enviar Orbit</StyledText>
-            </TouchableOpacity>
           </View>
+          {
+            dual
+              ? (
+                <View style={{marginTop: 10, paddingHorizontal: 10, marginBottom: 10}}>
+                  <TouchableOpacity 
+                    onPress={() => handleOpenModal()}
+                    style={{backgroundColor: theme.colors.blue, marginTop: 10, paddingVertical: 10, alignItems: 'center', borderRadius: 20}}
+                  >
+                    <StyledText color="white" fontSize="medium" fontWeight="bold">Enviar Orbit</StyledText>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View>
+                  <View style={{alignItems: 'center', marginTop: 10, paddingHorizontal: 10, marginBottom: 10}}>
+                    <StyledText fontWeight="bold" fontSize="lg" color="blue">Datos del Destinatario:</StyledText>
+                    <View style={{width: "100%", gap: 10, marginTop: 10}}>
+                      <View>
+                        <StyledText>
+                          Direccion de destino * {
+                            inputError.email.submitTry 
+                              ? <StyledText color="red" fontSize="sm" fontWeight="extralight">(Direccion invalida)</StyledText>
+                              : ""
+                          }
+                        </StyledText>
+                        <TextInput placeholder='pruebas.criptoven@gmail.com' onSubmitEditing={() => descriptionRef.current.focus()} style={styles.input} onChangeText={(text) => handleInputChange("email", text)}/>
+                      </View>
+                      <View>
+                        <StyledText>
+                          Descripcion * {
+                            inputError.description.submitTry ? <StyledText color="red" fontSize="sm" fontWeight="extralight">(Descripcion invalida)</StyledText> : ""
+                          }
+                        </StyledText>
+                        <TextInput ref={descriptionRef} placeholder='Prestamo' style={styles.input} onChangeText={(text) => handleInputChange("description", text)}/>
+                      </View>
+                    </View>
+                  </View>
+                  <TouchableOpacity 
+                    onPress={() => handleOpenModal()}
+                    style={{backgroundColor: theme.colors.blue, marginTop: 10, paddingVertical: 10, alignItems: 'center', borderRadius: 20}}
+                  >
+                    <StyledText color="white" fontSize="medium" fontWeight="bold">Enviar Orbit</StyledText>
+                  </TouchableOpacity>
+                </View>
+              )
+          }
         </View>
       </View>
     </>
@@ -212,13 +376,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderRadius: 10,
     elevation: 3, // Sombras
-    padding: 16,
+    paddingVertical: 15,
+    paddingHorizontal: 16,
     position: 'absolute',
     zIndex: 1,
     width: width * 0.9, // Ancho del 90% de la pantalla
     alignSelf: 'center', // Centra horizontalmente
     top: height * 0.135, // Centra verticalmente en el 25% de la pantalla
-    height: height * 0.63,
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    gap: 5
   },
   itemsCard: {
     flex: 1, 

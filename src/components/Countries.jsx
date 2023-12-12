@@ -3,7 +3,7 @@ import { Icon } from '@rneui/themed';
 import React, { useState } from 'react'
 import {StyledText} from "../components"
 import { Searchbar } from 'react-native-paper';
-import { getCountries } from '../api/general/Countries';
+import { getCountries } from '../api/general/general';
 import theme from '../theme';
 import Loader from './Loader';
 

@@ -34,6 +34,34 @@ export const register = async (credentials: any) => {
   })
 }
 
+export const completeRegister = async (credentials: any, token: string) => {
+  const formdata = new FormData()
+  Object.keys(credentials).forEach((element) => {
+    console.log(credentials[element], typeof credentials[element])
+    return formdata.append(element, credentials[element])
+  })
+
+  return await fetch(`http://54.220.205.31/api/users/complete-register`, {
+    method: "POST",
+    // body: JSON.stringify(parseJSON),
+    body: formdata,
+    redirect: "follow",
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'Authorization': `Bearer ${token}`,
+    },
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    return data
+  })
+  .catch((error) => {
+    console.log("errorRegisterOnAPI", error)
+  })
+}
+
+
+
 export const resetPassword = async (email: string) => {
 
   const formdata = new FormData()
@@ -57,11 +85,22 @@ export const getOne = async (userId: string, token: string) =>
     },
   })
   .then((response) => response.json())
-  .then(data => {
-    return data
-  })
+  .then((data) => data)
   .catch((error) => {
     console.log("error en fetch", error)
     throw new Error(`Error getone: ${error}`);
   })
+
+export const getUserAccount = async (userId: string, token: string) => 
+  await fetch(`http://54.220.205.31/api/users/${userId}/accounts`, {
+    method: "GET",
+    redirect: "follow",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  })
+  .then((data) => data.json())
+  .then((data) => data)
+  .catch((error) => new Error(error))
 

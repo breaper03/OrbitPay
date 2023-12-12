@@ -1,61 +1,75 @@
-import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, Dimensions, Image, TouchableOpacity } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { StatusBar } from 'expo-status-bar'
+import { Icon } from '@rneui/base';
 import StyledText from '../components/StyledText';
 import theme from '../theme';
-import { Icon } from '@rneui/themed';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+
+const { width, height } = Dimensions.get('window');
 
 const Orbit = () => {
+
   const navigation = useNavigation()
 
-  const route = useRoute().name
+  const [viewQR, setViewQR] = useState(false);
+  
+  const copyToClipboard = async (value) => {
+    await Clipboard.setStringAsync(value);
+  };
 
   return (
     <>
-      <StatusBar style="inverted" backgroundColor={theme.colors.lightBlue} hidden={false} translucent={true}/>
+      <StatusBar style="inverted" backgroundColor={theme.colors.blue} hidden={false} translucent={true}/>
       <View style={styles.container}>
-        <View style={{ backgroundColor: theme.colors.lightBlue, height: "30%", alignItems: 'center', justifyContent: 'flex-start'}}/>
+
+        <View style={[{ backgroundColor: theme.colors.blue, height: "30%" }]}/>
 
         <TouchableOpacity onPress={() => navigation.navigate("Dashboard")} style={styles.goBack}>
           <View style={styles.itemsGoBack}>
-            <Icon type='material-icons' name='chevron-left' color={theme.colors.blue} size={55}/>
-            <StyledText color="blue" fontSize="xxxl" fontWeight="bold">Home</StyledText>
+            <Icon type='material-icons' name='chevron-left' color="white" size={55}/>
+            <StyledText color="white" fontSize="xxxl" fontWeight="bold">Dashboard</StyledText>
           </View>
         </TouchableOpacity>
 
-        <View style={{ backgroundColor: theme.colors.lightBlue, height: "70%" }} />
+        <View style={[{ backgroundColor: theme.colors.lightBlue, height: "70%" }]} />
 
         {/* Tarjeta que estará en el centro de la pantalla */}
-        <View style={[styles.card, {display: 'flex'}]}>
-          <StyledText style={styles.title}>Orbit</StyledText>
-          <View style={styles.itemsCard}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Pay")}
-              style={{backgroundColor: theme.colors.lightBlue, paddingBottom: 10, borderRadius:15, flexDirection: 'column', alignItems:'center', elevation: 3}}>
-              <View style={styles.buttonCard}>
-                <Icon name='arrow-top-right-thick' type='material-community' color={theme.colors.white} size={40}/> 
-              </View>
-              <StyledText fontSize="base" fontWeight="bold" color="blue">Enviar</StyledText>
-            </TouchableOpacity>
+        <View style={styles.card}>
+          <StyledText style={styles.title}>Orbit Pay</StyledText>
+          <View style={{flex: 1, flexDirection: 'column', gap: 10, padding: 5, alignItems: 'center', justifyContent: 'space-between'}}>
             
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Receive")}
-              style={{backgroundColor: theme.colors.lightBlue, paddingBottom: 10, borderRadius:15, flexDirection: 'column', alignItems:'center', elevation: 3}}>
-              <View style={styles.buttonCard}>
-                <Icon name='arrow-bottom-left-thick' type='material-community' color={theme.colors.white} size={40}/>
-              </View>
-              <StyledText fontSize="base" fontWeight="bold" color="blue">Recibir</StyledText>
-            </TouchableOpacity>
+            <View style={{marginVertical: 10}}>
+              <StyledText fontSize="medium" fontWeight="bold" color="black">Recibir Orbit</StyledText>
+            </View>
             
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Swap")}
-              style={{backgroundColor: theme.colors.lightBlue, paddingBottom: 10, borderRadius:15, flexDirection: 'column', alignItems:'center', elevation: 3}}>
-              <View style={styles.buttonCard}>
-                <Icon name='sync' type='material-community' color={theme.colors.white} size={40}/>
-              </View>
-              <StyledText fontSize="base" fontWeight="bold" color="blue">Cambio</StyledText>
-            </TouchableOpacity>
+            <View style={{flexDirection: 'column', gap: 10, alignItems: 'center', justifyContent: 'space-between'}}>
+              <TouchableOpacity onPress={() => setViewQR(!viewQR)}>
+                {
+                  !viewQR 
+                    ? <Image source={require("../../assets/orbitLG.png")}/>
+                    : <Image source={require("../../assets/qr.png")}/>
+                }
+              </TouchableOpacity>
+              <StyledText fontSize="normal" fontWeight="base" color="gray">Pulse para ver el QR</StyledText>
+            </View>
+            
+            <View>
+              <TouchableOpacity onPress={() => copyToClipboard("breaper2021@gmail.com")} style={styles.clipboardButtom}>
+                <StyledText fontSize="medium" fontWeight="bold" color="black">breaper2021@gmail.com</StyledText>
+                <Icon name='clipboard-text-outline' type='material-community' color={theme.colors.blue} size={20}/>
+              </TouchableOpacity>
+            </View>
+            
+            <View>
+              <TouchableOpacity style={styles.sendButton}>
+                <StyledText fontSize="medium" fontWeight="bold" color="white">Enviar Orbit</StyledText>
+              </TouchableOpacity>
+            </View>
+
+          </View>
+          <View>
           </View>
         </View>
       </View>
@@ -63,7 +77,6 @@ const Orbit = () => {
   );
 };
 
-const { width, height } = Dimensions.get('window'); // Obtener dimensiones de la pantalla
 
 const styles = StyleSheet.create({
   container: {
@@ -81,15 +94,8 @@ const styles = StyleSheet.create({
     zIndex: 1,
     width: width * 0.9, // Ancho del 90% de la pantalla
     alignSelf: 'center', // Centra horizontalmente
-    top: height * 0.20, // Centra verticalmente en el 25% de la pantalla
-    height: height * 0.35
-  },
-  itemsCard: {
-    flex: 1, 
-    flexDirection: 'row', 
-    width: "100%", 
-    justifyContent: "space-around", 
-    alignItems: 'center'
+    top: height * 0.135, // Centra verticalmente en el 25% de la pantalla
+    height: height * 0.65,
   },
   goBack: {
     justifyContent: 'flex-start',
@@ -99,7 +105,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
     width: width * 0.9, // Ancho del 90% de la pantalla
     alignSelf: 'center', // Centra horizontalmente
-    top: height * 0.10, // Centra verticalmente en el 25% de la pantalla
+    top: height * 0.05, // Centra verticalmente en el 25% de la pantalla
     height: height * 0.07
   },
   itemsGoBack: {
@@ -108,14 +114,6 @@ const styles = StyleSheet.create({
     width: "100%", 
     justifyContent: "flex-start", 
     alignItems: 'center',
-  },
-  buttonCard: {
-    borderRadius: 15,
-    shadowColor: "#000",
-    backgroundColor: theme.colors.blue,
-    color: theme.colors.white,
-    padding: 15,
-    marginBottom: 5
   },
   title: {
     textAlign: 'center',
@@ -127,6 +125,31 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.medium,
     fontSize: 16,
   },
+  clipboardButtom: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 20,
+    alignItems: "center",
+    paddingHorizontal: 8,
+    paddingVertical: 10,
+    borderRadius: 5,
+    borderColor: "#ccc",
+  },
+  clipboardText: {
+
+  },
+  clipboardIcon: {
+
+  },
+  sendButton: {
+    backgroundColor: theme.colors.blue, 
+    width: width * 0.8, 
+    height: height * 0.06,
+    borderRadius: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5
+  }
 });
 
 export default Orbit;

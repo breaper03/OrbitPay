@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
-import { Home, Transactions, Receive, Swap, Orbit, Resume, TransactionComplete, Login, LoadingScreen, UserDashboard } from '../screens/index'
+import { Home, Transactions, Receive, Swap, Orbit, Resume, TransactionComplete, Login, LoadingScreen, UserDashboard, ResetPassword, CompleteRegister } from '../screens/index'
 import Pay from "../screens/Pay"
 import { View, Image } from 'react-native'
 import { Entypo } from '@expo/vector-icons';
@@ -35,14 +35,13 @@ const Navigation = () => {
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName={initialScreen}
-        // initialRouteName='Login'
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="Dashboard">
           {() => (
             <Tab.Navigator screenOptions={screenOptions} initialRouteName='Dashboard'>
               <Tab.Screen 
-                name="Dashboard" 
+                name="DashboardButtom" 
                 component={Home} 
                 options={{
                   tabBarIcon: ({focused}) => (
@@ -103,7 +102,7 @@ const Navigation = () => {
         {/* hdhd */}
         <Stack.Screen 
           name="Pay" 
-          component={Pay} 
+          component={Pay}
         />
         <Stack.Screen 
           name="Receive" 
@@ -130,8 +129,16 @@ const Navigation = () => {
           component={LoadingScreen} 
         />
         <Stack.Screen 
+          name="ResetPassword" 
+          component={ResetPassword}
+        />
+        <Stack.Screen 
           name="UserDashboard" 
           component={UserDashboard} 
+        />
+        <Stack.Screen 
+          name="CompleteRegister" 
+          component={CompleteRegister} 
         />
       </Stack.Navigator>
     </NavigationContainer>
@@ -139,45 +146,4 @@ const Navigation = () => {
 }
 
 const Stack = createNativeStackNavigator()
-
-function MyStack() {
-  return (
-    <Stack.Navigator
-      initialRouteName='HomeScreen'
-      screenOptions={{
-        headerShown: false
-      }}
-    >
-      <Stack.Screen 
-        name="HomeScreen" 
-        component={Home}
-      />
-      <Stack.Screen 
-        name="transactions" 
-        component={Transactions} 
-      />
-      <Stack.Screen 
-        name="Pay" 
-        component={Pay} 
-      />
-      <Stack.Screen 
-        name="Receive" 
-        component={Receive} 
-      />
-      <Stack.Screen 
-        name="Swap" 
-        component={Swap} 
-      />
-      <Stack.Screen 
-        name="Resume" 
-        component={Resume} 
-      />
-      <Stack.Screen 
-        name="TransactionComplete" 
-        component={TransactionComplete} 
-      />
-    </Stack.Navigator>
-  );
-}
-
 export default Navigation

@@ -21,9 +21,9 @@ const Transactions = () => {
           <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', gap: 35}} onPress={() => navigation.navigate("Dashboard")}>
             
             <View>
-              <TouchableOpacity style={{justifyContent: 'center'}} >
+              <View style={{justifyContent: 'center'}} >
                 <Icon name='chevron-left' type='material' size={55} color={theme.colors.blue}/>
-              </TouchableOpacity>
+              </View>
             </View>
 
 

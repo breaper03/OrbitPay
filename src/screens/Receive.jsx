@@ -1,20 +1,22 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Dimensions, Image, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Dimensions, Image, TouchableOpacity, Animated } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { StatusBar } from 'expo-status-bar'
 import { Icon } from '@rneui/base';
 import StyledText from '../components/StyledText';
 import theme from '../theme';
-import { useNavigation } from '@react-navigation/native';
-
+import { useNavigation, useRoute } from '@react-navigation/native';
+import QRCode from 'react-native-qrcode-svg';
 const { width, height } = Dimensions.get('window');
+import Loader from '../components/Loader';
+import { useUser } from "../context/UserContext"
 
 const Receive = () => {
 
-  const navigation = useNavigation()
+  const navigation = useNavigation();
 
-  const [viewQR, setViewQR] = useState(false);
-  
+  const { coin } = useRoute().params
+
   const copyToClipboard = async (value) => {
     await Clipboard.setStringAsync(value);
   };
@@ -26,10 +28,10 @@ const Receive = () => {
 
         <View style={[{ backgroundColor: theme.colors.blue, height: "30%" }]}/>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Orbit")} style={styles.goBack}>
+        <TouchableOpacity onPress={() => navigation.navigate("Dashboard")} style={styles.goBack}>
           <View style={styles.itemsGoBack}>
             <Icon type='material-icons' name='chevron-left' color="white" size={55}/>
-            <StyledText color="white" fontSize="xxxl" fontWeight="bold">Orbit</StyledText>
+            <StyledText color="white" fontSize="xxxl" fontWeight="bold">Inicio</StyledText>
           </View>
         </TouchableOpacity>
 
@@ -37,34 +39,36 @@ const Receive = () => {
 
         {/* Tarjeta que estará en el centro de la pantalla */}
         <View style={styles.card}>
-          <StyledText style={styles.title}>Orbit Pay</StyledText>
+          <StyledText style={styles.title}>Deposito</StyledText>
           <View style={{flex: 1, flexDirection: 'column', gap: 10, padding: 5, alignItems: 'center', justifyContent: 'space-between'}}>
             
             <View style={{marginVertical: 10}}>
-              <StyledText fontSize="medium" fontWeight="bold" color="black">Recibir Orbit</StyledText>
+              <StyledText fontSize="medium" fontWeight="bold" color="black">Depositar {coin.currency_symbol}</StyledText>
             </View>
             
             <View style={{flexDirection: 'column', gap: 10, alignItems: 'center', justifyContent: 'space-between'}}>
-              <TouchableOpacity onPress={() => setViewQR(!viewQR)}>
-                {
-                  !viewQR 
-                    ? <Image source={require("../../assets/orbitLG.png")}/>
-                    : <Image source={require("../../assets/qr.png")}/>
-                }
-              </TouchableOpacity>
-              <StyledText fontSize="normal" fontWeight="base" color="gray">Pulse para ver el QR</StyledText>
+              <View>
+                <QRCode
+                  value={coin.account_address}
+                  logo={{uri: `${coin.currency_icon_path}`}}
+                  logoSize={25}
+                  size={175}
+                  logoBackgroundColor='transparent'
+                  color={theme.colors.black}
+                />
+              </View>
             </View>
             
             <View>
-              <TouchableOpacity onPress={() => copyToClipboard("breaper2021@gmail.com")} style={styles.clipboardButtom}>
-                <StyledText fontSize="medium" fontWeight="bold" color="black">breaper2021@gmail.com</StyledText>
-                <Icon name='clipboard-text-outline' type='material-community' color={theme.colors.blue} size={20}/>
-              </TouchableOpacity>
-            </View>
-            
-            <View>
-              <TouchableOpacity style={styles.sendButton}>
-                <StyledText fontSize="medium" fontWeight="bold" color="white">Enviar Orbit</StyledText>
+              <TouchableOpacity onPress={() => copyToClipboard(coin.account_address)} style={styles.clipboardButtom}>
+                <View style={{maxWidth: width * 0.65, overflow: 'hidden', height: height * 0.02}}>
+                  <StyledText fontSize="base" fontWeight="light" color="blue">
+                    {coin.account_address}
+                  </StyledText>
+                </View>
+                <View style={{backgroundColor: theme.colors.blue, height: "100%", width: 40, justifyContent: 'center'}}>
+                  <Icon name='content-copy' type='material-community' color={theme.colors.white} size={20}/>
+                </View>
               </TouchableOpacity>
             </View>
 
@@ -127,13 +131,16 @@ const styles = StyleSheet.create({
   },
   clipboardButtom: {
     flexDirection: "row",
+    overflow: 'hidden',
     gap: 8,
     marginTop: 20,
     alignItems: "center",
-    paddingHorizontal: 8,
-    paddingVertical: 10,
-    borderRadius: 5,
-    borderColor: "#ccc",
+    paddingLeft: 10,
+    justifyContent: 'space-between',
+    height: height * 0.05,
+    width: width * 0.80,
+    borderRadius: 8,
+    backgroundColor: theme.colors.blurBlue,
   },
   clipboardText: {
 

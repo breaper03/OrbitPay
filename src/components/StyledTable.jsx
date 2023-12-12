@@ -8,13 +8,13 @@ import theme from "../theme"
 import { useUser } from "../context/UserContext"
 
 const StyledTable = ({setBalance}) => {
-  const { handleUserBalance, transactions } = useUser()
+  const { handleUserBalance, transactions, user } = useUser()
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const getTransactions = async () => {
       setLoading(true);
-      if (!transactions) {
+      if (transactions === undefined || transactions.length < 1) {
           return await handleUserBalance()
             .then((data) => {
               setLoading(false);
@@ -27,7 +27,7 @@ const StyledTable = ({setBalance}) => {
         }
     }
     getTransactions()
-  }, [transactions])
+  }, [transactions, user])
 
 
   const transformedArray = (number) => {

@@ -69,6 +69,12 @@ export interface IUser {
   totalInUsd: number;
 }
 
+export interface IUserAccounts {
+  address:  string;
+  active:   boolean;
+  currency: ICurrency;
+}
+
 export interface INationality {
   code: string;
   name: string;
@@ -86,3 +92,6 @@ export interface IData {
   username: string;
   roles:    string[];
 }
+
+
+

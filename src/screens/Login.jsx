@@ -11,7 +11,7 @@ import Loader from '../components/Loader';
 
 const Login = () => {
 
-  const navigaton = useNavigation()
+  const navigation = useNavigation()
   const { handleLogin, handleRegister, handleLogOut } = useUser()
 
   const [submitError, setSubmitError] = useState({
@@ -80,7 +80,7 @@ const Login = () => {
   }, [])
   
 
-  const regexPwd = /^(?=.*[A-Z])(?=(?:.*\d){2})(?=(?:.*[!@#$%^&*()_+={}[\]:;<>,./?~-]){2}).*$/
+  const regexPwd = /^(?=.*[A-Z])(?=(?:.*\d){2})(?=(?:.*[!@#$%^&*()_+={}[\]:;<>,./?~-]){2}).{8,}$/;
   const regexEmail = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 
   const userTypeData = [
@@ -154,7 +154,7 @@ const Login = () => {
     if (!errors) {
       return await handleLogin(formValueLogin)
         .then((data) => {
-          data.code === 200 && navigaton.navigate("Dashboard")
+          data.code === 200 && navigation.navigate("Dashboard")
           setLoading(false)
         })
         .catch((error) => {
@@ -172,7 +172,8 @@ const Login = () => {
     setLoading(true)
     validateRegisterParams()
     const errors = checkRegisterErrors()
-    if (errors) {
+    if (!errors) {
+      console.log("entra")
       await handleRegister(formValueRegister)
         .catch((error) => {
           setSubmitError({error: true, message: error})
@@ -246,7 +247,7 @@ const Login = () => {
                     >
                       Ingrese su contraseña!
                     </HelperText>
-                    <TouchableOpacity style={{alignItems: 'center', marginTop: 5}}>
+                    <TouchableOpacity style={{alignItems: 'center', marginTop: 5}} onPress={() => navigation.navigate("ResetPassword")}>
                       <StyledText color="blue" fontSize="normal" fontWeight="extraBold">¿OLVIDO SU CONTRASEÑA?</StyledText>
                     </TouchableOpacity>
                   </View>

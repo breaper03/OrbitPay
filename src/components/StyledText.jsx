@@ -1,6 +1,5 @@
 import React from 'react'
-import { Text, View, StyleSheet } from 'react-native'
-import EStyleSheet from 'react-native-extended-stylesheet'
+import { Text, StyleSheet } from 'react-native'
 
 import theme from "../theme.js"
 const StyledText = ({
@@ -33,6 +32,7 @@ const StyledText = ({
     color === "green" && styles.green,
     color === "gray" && styles.gray,
     color === "lightRed" && styles.lightRed,
+    color === "blurBlue" && styles.blurBlue,
   ]
 
   return (
@@ -98,6 +98,12 @@ const styles = StyleSheet.create({
   blue: {
     color: theme.colors.blue,
   },
+  lightBlue: {
+    color: theme.colors.lightBlue
+  },
+  blurBlue: {
+    color: theme.colors.blurBlue
+  },
   black: {
     color: theme.colors.black,
   },
@@ -107,13 +113,16 @@ const styles = StyleSheet.create({
   lightRed: {
     color: theme.colors.lightRed,
   },
-  lightGreen: {
-    color: theme.colors.lightGreen,
-  },
   green: {
     color: theme.colors.green,
   },
+  lightGreen: {
+    color: theme.colors.lightGreen,
+  },
   gray: {
     color: theme.colors.gray
+  },
+  lightGray: {
+    color: theme.colors.lightgray
   }
 })

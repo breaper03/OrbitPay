@@ -41,12 +41,12 @@ const UserDashboard = () => {
                     <StyledText fontSize="medium" fontWeight="bold" color="blue">{user.username}</StyledText>
                     <StyledText fontSize="normal" fontWeight="light" color="blue">{user.email}</StyledText>
                     {
-                      user.verification_status !== "profile_verification_register"
+                      user.verification_status.name === "profile_verification_complete"
                       ? (
                         <View style={{backgroundColor: theme.colors.lightGreen, borderRadius: 100, paddingVertical:2, paddingHorizontal:10, flexDirection: "row", alignItems: 'center', gap: 5, width: width * 0.26, marginTop: 5}}>
                           <StyledText fontSize="normal" fontWeight="bold" color="green">Verificado</StyledText>
                           <Icon type='octicon' name="verified" color={theme.colors.green} size={15}/>
-                        </View>
+                        </View> 
                       )
                       : (
                         <View style={{backgroundColor: theme.colors.lightgray, borderRadius: 100, paddingVertical:2, paddingHorizontal:10, flexDirection: "row", alignItems: 'center', gap: 5, width: width * 0.3, marginTop: 5}}>
@@ -67,7 +67,7 @@ const UserDashboard = () => {
                   >
                     <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', gap: 15}}>
                       <Icon name='table' type='material-community' color={theme.colors.blue}/>
-                      <StyledText>Tablero</StyledText>
+                      <StyledText fontWeight="light" color="blue" fontSize="medium">Tablero</StyledText>
                     </View>
                     <Icon type='font-awesome-5' name='chevron-right' color={theme.colors.blue}/>
                   </TouchableOpacity>
@@ -78,7 +78,7 @@ const UserDashboard = () => {
                   >
                     <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', gap: 15}}>
                       <Icon name='swap-vertical-bold' type='material-community' color={theme.colors.blue}/>
-                      <StyledText>Enviar / Criptos</StyledText>
+                      <StyledText fontWeight="light" color="blue" fontSize="medium">Enviar / Criptos</StyledText>
                     </View>
                     <Icon type='font-awesome-5' name='chevron-right' color={theme.colors.blue}/>
                   </TouchableOpacity>
@@ -89,7 +89,7 @@ const UserDashboard = () => {
                   >
                     <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', gap: 15}}>
                       <Icon name='account-balance-wallet' type='material-icons' color={theme.colors.blue}/>
-                      <StyledText>Cuentas</StyledText>
+                      <StyledText fontWeight="light" color="blue" fontSize="medium">Cuentas</StyledText>
                     </View>
                     <Icon type='font-awesome-5' name='chevron-right' color={theme.colors.blue}/>
                   </TouchableOpacity>
@@ -100,7 +100,7 @@ const UserDashboard = () => {
                   >
                     <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', gap: 15}}>
                       <Icon name='hand-coin' type='material-community' color={theme.colors.blue}/>
-                      <StyledText>Recibir FIAT</StyledText>
+                      <StyledText fontWeight="light" color="blue" fontSize="medium">Recibir FIAT</StyledText>
                     </View>
                     <Icon type='font-awesome-5' name='chevron-right' color={theme.colors.blue}/>
                   </TouchableOpacity>
@@ -111,20 +111,47 @@ const UserDashboard = () => {
                   >
                     <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', gap: 15}}>
                       <Icon name='sign-out-alt' type='font-awesome-5' color={theme.colors.blue}/>
-                      <StyledText>Cerrar Sesion</StyledText>
+                      <StyledText fontWeight="light" color="blue" fontSize="medium">Cerrar Sesion</StyledText>
                     </View>
                     <Icon type='font-awesome-5' name='chevron-right' color={theme.colors.blue}/>
                   </TouchableOpacity>
                 </View>
+                {
+                  user.verification_status.name !== "profile_verification_complete"
+                    ? (
+                      <View
+                        style={[styles.card, {backgroundColor: "white", height: height * 0.1, top: height * 0.6, elevation: 4, gap: 5}]}
+                      >
+                        <TouchableOpacity 
+                          style={{flexDirection: 'row', paddingHorizontal: 12, paddingVertical: 12, borderRadius: 12, alignItems: 'center', justifyContent: 'space-between'}}
+                          onPress={() => navigation.navigate("CompleteRegister")}
+                        >
+                          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', gap: 15}}>
+                            <Icon name='shield-account' type='material-community' color={theme.colors.blue}/>
+                            <StyledText fontWeight="light" color="blue" fontSize="medium">Verificar Usuario</StyledText>
+                          </View>
+                          <Icon type='font-awesome-5' name='chevron-right' color={theme.colors.blue}/>
+                        </TouchableOpacity>
+                      </View>
+                    )
+                    : ""
+                }
               </View>
             )
             : (
               <View style={[styles.card, {backgroundColor: "transparent", top: height * 0.135, height: height * 0.63, justifyContent: 'space-between'}]}>
-                <StyledText>Ocurrio un error, reintente mas tarde.</StyledText>
+                <TouchableOpacity 
+                  style={{backgroundColor: theme.colors.blue}}
+                  onPress={() => navigation.navigate("Dashboard")}>
+                    <StyledText color="white" fontWeight="bold" fontSize="medium">Regresar al inicio</StyledText>
+                  </TouchableOpacity>
               </View>
             )
         }
 
+        <View >
+          <StyledText fontWeight="light" color="blue" fontSize="medium">hello world</StyledText>
+        </View>
     </>
   )
 }

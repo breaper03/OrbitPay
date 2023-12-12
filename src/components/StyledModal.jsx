@@ -7,7 +7,6 @@ import theme from '../theme'
 
 export default function StyledModal({visible, setVisible}) {
   
-
   return (
     <View
       blurRadius={visible ? 10 : 0}

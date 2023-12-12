@@ -2,24 +2,32 @@ import { StyleSheet, View, TouchableOpacity, Dimensions } from 'react-native'
 import { Icon } from '@rneui/themed'
 import StyledText from "./StyledText"
 import theme from '../theme'
+import { useEffect, useState } from 'react'
 
-const Keyboard = ({amount, setAmount}) => {
+const Keyboard = ({amount, setAmount, maxAmount}) => {
+
+  const [maxAmounto, setmaxAmounto] = useState();
+
+  useEffect(() => {
+    setmaxAmounto(maxAmount)
+  }, [maxAmount])
+  
 
   const handleKeyPress = (key) => {
-  const newAmount = parseFloat(amount.replace(",", ".")) * 10 + parseInt(key) /100;
+  const newAmount = parseFloat(amount) * 10 + parseInt(key) /100;
 
   // Verificar si excede el límite de 600,00
-  const limitedAmount = Math.min(newAmount, 600.0);
+  const limitedAmount = Math.min(newAmount, maxAmount);
 
   // Actualizar el estado solo si el nuevo valor no excede el límite
-  if (limitedAmount <= 600.0) {
-    setAmount(limitedAmount.toFixed(2).replace(".", ","));
+  if (limitedAmount <= maxAmount) {
+    setAmount(limitedAmount.toFixed(2));
   }
 };
 
   const handleBackspace = () => {
-    const newAmount = parseFloat(amount.replace(",", ".")) * 0.1;
-    setAmount(newAmount.toFixed(2).replace(".", ","));
+    const newAmount = parseFloat(amount) * 0.1;
+    setAmount(newAmount.toFixed(2));
   };
 
   return (

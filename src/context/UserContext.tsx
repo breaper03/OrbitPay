@@ -1,10 +1,9 @@
 import React, { ReactNode, createContext, useContext, useEffect, useState } from "react";
 import { IUser, IUserLogin, IUserNoVerified, IUserRegistration, IUserSesion } from "../interfaces/Users.interface";
-import { getOne, login, register, resetPassword } from "../api/users/Users";
+import { getOne, login, register, resetPassword, getUserAccount } from "../api/users/Users";
 import * as SecureStore from "expo-secure-store";
 import { getBalance } from "../api/transactions/transactions";
 import { BalanceList } from "../interfaces/Transactions.interface";
-import { lightGreen100 } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 
 interface UserContextProps {
   user: IUser | IUserNoVerified;
@@ -15,6 +14,7 @@ interface UserContextProps {
   handleRegister: (credentials: IUserRegistration) => Promise<void>;
   handleLogOut: () => void;
   handleUserBalance: () => Promise<void | { code: number; response: BalanceList[]; }>
+  getUserAccounts: () => Promise<any>
 }
 
 const UserContext = createContext<UserContextProps | undefined>(undefined)
@@ -29,6 +29,7 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [initialScreen, setInitialScreen] = useState("Loading");
 
   const [transactions, setTransactions] = useState<BalanceList[] | undefined>()
+
 
   useEffect(() => {
     handleAutoLogin();
@@ -84,7 +85,9 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         .then(async (data) => {
           await SecureStore.setItemAsync("token", response.token)
           await SecureStore.setItemAsync("userId", JSON.stringify(response.data.id))
+          console.log(data.response)
           setUser(data.response)
+          setTransactions([])
           return data
         })
       return getUser
@@ -101,6 +104,7 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   }
 
   const handleLogOut = async () => {
+    setTransactions([])
     await SecureStore.deleteItemAsync("token")
     await SecureStore.deleteItemAsync("userId")
   }
@@ -123,6 +127,19 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       })
   }
 
+  const getUserAccounts = async () => {
+    const token = await SecureStore.getItemAsync("token")
+    const userId = await SecureStore.getItemAsync("userId")
+    return await getUserAccount(userId, token)
+      .then((data) => {
+        return data
+      })
+      .catch((error) => {
+        console.log("error on getUserAccounts", error)
+        return error
+      })
+  }
+
   return (
     <UserContext.Provider value={{ 
       user, 
@@ -132,7 +149,8 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       handleRegister, 
       handleLogOut,
       transactions,
-      handleUserBalance
+      handleUserBalance,
+      getUserAccounts
     }}>
       {children}
     </UserContext.Provider>

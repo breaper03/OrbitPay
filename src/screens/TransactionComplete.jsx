@@ -60,7 +60,7 @@ const TransactionComplete = () => {
               <View style={{width: "100%", gap: 10, marginTop: 15}}>
                 <View style={{gap: 0}}>
                   <StyledText color="gray" fontWeight="bold">Correo OrbitPay:</StyledText>
-                  <StyledText color="blue" fontSize="medium" fontWeight="light">{email}</StyledText>
+                  <StyledText color="blue" fontSize="normal" fontWeight="light">{email}</StyledText>
                 </View>
                 <View style={{gap: 0}}>
                   <StyledText color="gray" fontWeight="bold">Descripcion:</StyledText>

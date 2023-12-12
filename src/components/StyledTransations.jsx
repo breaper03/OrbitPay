@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, View, FlatList, Dimensions } from 'react-native'
+import { StyleSheet, View, FlatList, Dimensions, TouchableOpacity } from 'react-native'
 import { Icon } from "@rneui/themed"
 import theme from "../theme"
 import StyledText from "./StyledText"
@@ -8,6 +8,7 @@ import moment from 'moment';
 import 'moment/locale/es';
 import { getExchangeRates, getTransactionsList } from '../api/transactions/transactions'
 import Loader from './Loader'
+import { useUser } from "../context/UserContext"
 
 
 const StyledTransations = ({customHeight, pagination}) => {
@@ -17,27 +18,30 @@ const StyledTransations = ({customHeight, pagination}) => {
 
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    const transactions = async () => {
-      setLoading(true)
-      if (!transactionData) {
-          const token = await SecureStore.getItemAsync("token")
-          return await getTransactionsList(pagination, token)
-            .then((data) => {
-              setTransactionData(data.response.map((data) => data))
-              setLoading(false)
-            })
-            .catch((error) => {
-              console.log("error", error)
-              setLoading(false)
-            })
-        } else {
+  const { user } = useUser()
+
+  const transactions = async (refresh) => {
+    setLoading(true)
+    if (!transactionData || refresh) {
+      const token = await SecureStore.getItemAsync("token")
+      return await getTransactionsList(pagination, token)
+        .then((data) => {
+          setTransactionData(data.response.map((data) => data))
           setLoading(false)
-        }
-    }
+        })
+        .catch((error) => {
+          console.log("error", error)
+          setLoading(false)
+        })
+      } else {
+        setLoading(false)
+      }
+  }
+
+  useEffect(() => {
     
-    transactions()
-  }, [transactionData]);
+    transactions(false)
+  }, [transactionData, user]);
 
   // organizacion de las transacciones por fecha
   const transactionsByDate = {};
@@ -125,8 +129,13 @@ const StyledTransations = ({customHeight, pagination}) => {
   return (
     <View style={[styles.container, {height: customHeight ? height * customHeight : height * sortedTransactions.length / 7}]}>
       <View style={styles.box}>
-        <View key={Math.random()} style={{paddingHorizontal: 20, paddingVertical: 5,}}>
-          <StyledText fontSize="normal" fontWeight="normal" color="blue">Ultimas Transacciones</StyledText>
+        <View key={Math.random()} style={{flexDirection: 'row', paddingHorizontal: 20, paddingVertical: 5, justifyContent: 'space-between'}}>
+          <View>
+            <StyledText fontSize="normal" fontWeight="normal" color="blue">Ultimas Transacciones</StyledText>
+          </View>
+          <TouchableOpacity onPress={async () => await transactions(true)}>
+            <Icon name='sync' type='material-community' color={theme.colors.blue} size={20}/>
+          </TouchableOpacity>
         </View>
         {
           loading 
@@ -134,14 +143,20 @@ const StyledTransations = ({customHeight, pagination}) => {
               <View style={{justifyContent: 'center', alignItems: 'center', height: "100%", width: "100%"}}>
                 <Loader loading={loading} size={"large"} color={theme.colors.blue}/>
               </View>
-            ) : (
-              <FlatList
-                data={sortedTransactions}
-                renderItem={renderTransactionItem}
-                key={Math.random()}
-                keyExtractor={(item) => item.date}
-              />
-            )
+            ) : !transactionData
+              ? (
+                <View style={{alignSelf: 'center', justifyContent: 'center', marginTop: 50}}>
+                  <StyledText color="blue" fontWeight="bold" fontSize="normal">No existen transacciones para mostrar...</StyledText>
+                </View>
+              )
+              : (
+                <FlatList
+                  data={sortedTransactions}
+                  renderItem={renderTransactionItem}
+                  key={Math.random()}
+                  keyExtractor={(item) => item.date}
+                />
+              )
         }
       </View>
     </View>
