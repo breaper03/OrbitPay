@@ -76,23 +76,39 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   };
 
-  const handleLogin = async (credentials: IUserLogin) => {
-    const response = await login(credentials)
-    if (!response.data) {
-      throw new Error(`Combinacion de correo y contraseña incorrectos...`)
-    } else {
-      const getUser = await getOne(response.data.id, response.token)
+
+  const handleLogin = async (credentials: IUserLogin) => 
+    await login(credentials).then(async (res) => {
+      console.log("res", res)
+      return await getOne(res.data.id, res.token)
         .then(async (data) => {
-          await SecureStore.setItemAsync("token", response.token)
-          await SecureStore.setItemAsync("userId", JSON.stringify(response.data.id))
-          console.log(data.response)
+          console.log("datadatadata", data)
+          await SecureStore.setItemAsync("token", res.token)
+          await SecureStore.setItemAsync("userId", res.data.id.toString())
           setUser(data.response)
           setTransactions([])
           return data
         })
-      return getUser
-    }
-  }
+    })
+  
+
+
+  // const handleLogin = async (credentials: IUserLogin) => {
+  //   const response = await login(credentials)
+  //   if (response.token && !response.code) {
+  //     console.log('entra', response)
+  //     throw new Error(response.message)
+  //   } else {
+  //     return await getOne(response.data.id, response.token)
+  //       .then(async (data) => {
+  //         await SecureStore.setItemAsync("token", response.token)
+  //         await SecureStore.setItemAsync("userId", JSON.stringify(response.data.id))
+  //         data.code === 200 && setUser(data.response) 
+  //         setTransactions([])
+  //         return data
+  //       })
+  //   }
+  // }
   
   const handleRegister = async (credentials: IUserRegistration) => {
     try {

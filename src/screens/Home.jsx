@@ -17,9 +17,7 @@ const { width, height } = Dimensions.get('window');
 
 const Home = () => {
   const { user } = useUser()
-  console.log("user", user)
   const [visible, setVisible] = useState(false);
-
   const [balance, setBalance] = useState(0)
 
   return (

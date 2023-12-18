@@ -12,7 +12,6 @@ const UserDashboard = () => {
 
   const { user } = useUser();
 
-  console.log(user.verification_status.name)
   const navigation = useNavigation()
 
   return (

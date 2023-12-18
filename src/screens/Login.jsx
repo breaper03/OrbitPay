@@ -152,14 +152,18 @@ const Login = () => {
     validateLoginParams()
     const errors = checkLoginErrors()
     if (!errors) {
-      return await handleLogin(formValueLogin)
+      await handleLogin(formValueLogin)
         .then((data) => {
-          data.code === 200 && navigation.navigate("Dashboard")
+          console.log("dataaaaaaaaaa", data)
+          navigation.navigate("Dashboard")
+          alert("Se ha iniciado sesion con exito.")
           setLoading(false)
         })
         .catch((error) => {
-          setLoading(false)
+          console.log("entraaaaaaaaaaaaaaaaaaaaaaa", error)
           setSubmitError({error: true, message: error})
+          // setSubmitError({error: true, message: "Credenciales invalidas."})
+          setLoading(false)
         })
     } else {
       validateLoginParams()
