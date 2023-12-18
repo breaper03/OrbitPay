@@ -11,6 +11,8 @@ import { StyledText } from '../components'
 const UserDashboard = () => {
 
   const { user } = useUser();
+
+  console.log(user.verification_status.name)
   const navigation = useNavigation()
 
   return (
@@ -83,11 +85,13 @@ const UserDashboard = () => {
                     <Icon type='font-awesome-5' name='chevron-right' color={theme.colors.blue}/>
                   </TouchableOpacity>
                   <View style={{width: "100%", borderColor: theme.colors.blue, borderWidth: 0.5}}/>
-                  <TouchableOpacity 
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("BankAccounts")}
                     style={{flexDirection: 'row', paddingHorizontal: 12, paddingVertical: 12, borderRadius: 12, alignItems: 'center', justifyContent: 'space-between'}}
-                    // onPress={navigation.navigate("Dashboard")}
                   >
-                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', gap: 15}}>
+                    <View 
+                      style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', gap: 15}}
+                    >
                       <Icon name='account-balance-wallet' type='material-icons' color={theme.colors.blue}/>
                       <StyledText fontWeight="light" color="blue" fontSize="medium">Cuentas</StyledText>
                     </View>
@@ -117,7 +121,7 @@ const UserDashboard = () => {
                   </TouchableOpacity>
                 </View>
                 {
-                  user.verification_status.name !== "profile_verification_complete"
+                  user.verification_status.name ===  "profile_verification_register"
                     ? (
                       <View
                         style={[styles.card, {backgroundColor: "white", height: height * 0.1, top: height * 0.6, elevation: 4, gap: 5}]}

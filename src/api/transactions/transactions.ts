@@ -65,15 +65,15 @@ export const getTransactionFees = async (amount: number, currencyFrom: string, t
     .catch((error) => error)
 }
 
-export const sendMoney = async (currency: string, amount: number, toAddr: string, description: string, token: string) => {
+export const sendMoney = async (currency: string, amount: any, toAddr: string, description: string, token: string) => {
   
   const formdata = {currency, amount: amount, toAddr, description}
   
   const formData = new FormData()
-  formData.append("currency", "BTC");
-  formData.append("amount", "0.0005");
-  formData.append("toAddr", "33zoDrwBwZKNAhaifNpTTu9gXfz4VzdfUV");
-  formData.append("description", "Send crypto through the new API");
+  formData.append("currency", currency);
+  formData.append("amount", amount);
+  formData.append("toAddr", toAddr);
+  formData.append("description", description);
 
   console.log("formdata", JSON.stringify(formdata))
   console.log("token", token)
@@ -82,12 +82,10 @@ export const sendMoney = async (currency: string, amount: number, toAddr: string
     redirect: "follow",
     credentials: "same-origin",
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'multipart/form-data',
       'Authorization': `Bearer ${token}`,
     },
-    body: JSON.stringify(
-      {currency: "BTC", amount: 0.00001, toAddr: "2N9FvoWY5MdVnXpTfMrQm6ii9fgNfaH6R1J", description: "Send crypto through the new API"}
-    )
+    body: formData
   }).then((data) => {
     console.log("dataJSON", data)
     return data.json()
@@ -132,16 +130,20 @@ export const calculateMoney = async (currency: string, amountUSD: string, addres
     })
 }
 
-export const swapMoney = async (currencyFrom: string, currencyTo: string, amount: number, token: string) => {
-  const obj = {currencyFrom, currencyTo, amount, uuid: ""}
+export const swapMoney = async (currencyFrom: string, currencyTo: string, amount: any, token: string) => {
+  const formdata = new FormData()
+  formdata.append("currencyFrom", currencyFrom);
+  formdata.append("currencyTo", currencyTo);
+  formdata.append("amount", amount);
+  formdata.append("uuid", "");
   const myHeaders = new Headers()
   myHeaders.append("Cookie", "PHPSESSID=")
   await fetch(`${criptovenApiUrl}/transactions/exchange-order/create`, {
     method: "POST",
     redirect: "follow",
     credentials: "include",
-    headers: {...myHeaders, "Authorization": `Bearer ${token}`},
-    body: JSON.stringify(obj)
+    headers: {...myHeaders, "Authorization": `Bearer ${token}`, 'Content-Type': 'multipart/form-data',},
+    body: formdata
   }).then(data => data.json())
     .then((data) => {
       console.log(data)

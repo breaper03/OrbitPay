@@ -11,6 +11,7 @@ import UserDashboard from "./UserDashboard";
 import LoadingScreen from "./LoadingScreen";
 import ResetPassword from "./ResetPassword";
 import CompleteRegister from "./CompleteRegister";
+import Accounts from "./Accounts";
 
 export {
   Home, 
@@ -25,5 +26,6 @@ export {
   UserDashboard, 
   LoadingScreen,
   ResetPassword,
-  CompleteRegister
+  CompleteRegister,
+  Accounts
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
-import { Home, Transactions, Receive, Swap, Orbit, Resume, TransactionComplete, Login, LoadingScreen, UserDashboard, ResetPassword, CompleteRegister } from '../screens/index'
+import { Home, Transactions, Receive, Swap, Orbit, Resume, TransactionComplete, Login, LoadingScreen, UserDashboard, ResetPassword, CompleteRegister, Accounts } from '../screens/index'
 import Pay from "../screens/Pay"
 import { View, Image } from 'react-native'
 import { Entypo } from '@expo/vector-icons';
@@ -139,6 +139,10 @@ const Navigation = () => {
         <Stack.Screen 
           name="CompleteRegister" 
           component={CompleteRegister} 
+        />
+        <Stack.Screen 
+          name="BankAccounts" 
+          component={Accounts} 
         />
       </Stack.Navigator>
     </NavigationContainer>

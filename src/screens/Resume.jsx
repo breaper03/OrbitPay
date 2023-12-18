@@ -18,6 +18,12 @@ const Resume = () => {
     handleFee()
   }, [formData])
   
+  const [finishMessage, setFinishMessage] = useState({
+    code: "",
+    message: ""
+  })
+
+  const [loading, setLoading] = useState(false)
 
   const descriptionRef = useRef()
 
@@ -80,6 +86,7 @@ const Resume = () => {
   }
 
   const getCryptoAmount = async (total, fee) => {
+    setLoading(true)
     const token = await SecureStore.getItemAsync("token")
     const getCryptoAmount = await getExchangeRates("USD", coin.currency_symbol, token)
     console.log(total, fee)
@@ -87,34 +94,34 @@ const Resume = () => {
     const cryptoTotal = (+total / getCryptoAmount.response[`USD${coin.currency_symbol}`].amountUnformatted).toFixed(8)
     const cryptoFee = (+fee / getCryptoAmount.response[`USD${coin.currency_symbol}`].amountUnformatted).toFixed(8)
     setCryptoAmount({cryptoTotal, cryptoFee})
-    console.log(cryptoAmount)
+    setLoading(false)
   }
 
   const handleSubmit = async () => {
-    const token = await SecureStore.getItemAsync("token")
-    if (dual) {
-      console.log("swap")
-      const req = await swapMoney(coin.currency_symbol, dual.currency_symbol, cryptoAmount, token)
-        .then((data) => {
-          console.log("dataResume", data)
-          return data
-        })
-        .catch((error) => {
-          console.log("error", error)
-          return error
-        })
-      // navigation.navigate("TransactionComplete", {email: formData.email, description: formData.description, amount: amount, coin: coin})
+    if (finishMessage.code === "") {
+      setLoading(true)
+      const token = await SecureStore.getItemAsync("token")
+      if (dual) {
+        console.log("swap")
+        return await swapMoney(coin.currency_symbol, dual.currency_symbol, cryptoAmount, token)
+          .then((data) => {
+            console.log("dataResume", data)
+            setFinishMessage({code: data.code, message: data.message})
+            setLoading(false)
+            navigation.navigate("TransactionComplete", {email: formData.email, description: formData.description, amount: amount, coin: coin, isError: {code: data.code, message: data.message}})
+            return data
+          })
+      } else {
+        return await sendMoney(coin.currency_symbol, cryptoAmount.cryptoTotal, formData.email, formData.description, token)
+          .then((data) => {
+            setFinishMessage({code: data.code, message: data.message})
+            setLoading(false)
+            navigation.navigate("TransactionComplete", {email: formData.email, description: formData.description, amount: amount, coin: coin, isError: {code: data.code, message: data.message}})
+            return data
+          })
+      }
     } else {
-      const req = await sendMoney(coin.currency_symbol, cryptoAmount, formData.email, formData.description, token)
-        .then((data) => {
-          console.log("dataResume", data)
-          return data
-        })
-        .catch((error) => {
-          console.log("error", error)
-          return error
-        })
-      // navigation.navigate("TransactionComplete", {email: formData.email, description: formData.description, amount: amount, coin: coin})
+      navigation.navigate("Dashboard")
     }
   }
 
@@ -122,6 +129,7 @@ const Resume = () => {
     const exhange = parseFloat(amount.replace(",", ".")) / coin.exchange_rate
     return parseFloat(exhange.toFixed(8));
   }
+
   const transformedArray = (number) => {
     // Eliminar signo '-' y reemplazar ',' por '.'
     const formattedNumber = number.replace('-', '').replace(',', '.');
@@ -143,18 +151,19 @@ const Resume = () => {
 
   const handleFee = async () => {
     // currency from sera el selected one en caso de que sea una operacion swap
+    setLoading(true)
     const token = await SecureStore.getItemAsync("token");
     await getTransactionFees(amount, coin.currency_symbol, token)
       .then((data) => {
         setFee(data.response)
-        console.log(typeof amount, "operacion")
         getCryptoAmount(+amount + +data.response, data.response)
       })
+    setLoading(false)
   }
 
   return (
     <>
-      <StatusBar style="inverted" backgroundColor={theme.colors.blue} hidden={false} translucent={true}/>
+      <StatusBar style="light" backgroundColor={theme.colors.blue} hidden={false} translucent={true}/>
       <View style={styles.container}>
         <View style={[{ backgroundColor: theme.colors.blue, height: "30%" }]}/>
 
@@ -177,10 +186,21 @@ const Resume = () => {
           >
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
-                <View style={{flex: 1, alignItems: 'center', justifyContent: 'space-around', gap: 1}}>
-                  <StyledText style={{textAlign: "center", fontWeight: "bold", fontSize: theme.fontSize.medium, color: "gray", marginTop: 20}}>
-                    Esta seguro de que desea procesar la operacion</StyledText>
-                  <View style={{flexDirection: 'row', justifyContent: 'space-between', gap: 50}}>
+                <View style={{flex: 1, alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, gap: 1}}>
+
+                  {
+                    loading
+                      ? (
+                        <View style={{alignSelf: 'center', marginTop: height * 0.05}}>
+                          <Loader loading={loading} size="large" color={theme.colors.blue}/>
+                        </View>
+                      ) : (
+                        <StyledText style={{textAlign: "center", fontWeight: "bold", fontSize: theme.fontSize.medium, color: "gray", marginTop: 30}}>
+                          Esta seguro de que desea procesar la operacion
+                        </StyledText>
+                      )
+                  }
+                  <View style={{flexDirection: 'row', justifyContent: 'space-between', gap: 20}}>
                     <TouchableOpacity onPress={handleSubmit} 
                       style={{
                         backgroundColor: theme.colors.blue,
@@ -316,11 +336,12 @@ const Resume = () => {
             dual
               ? (
                 <View style={{marginTop: 10, paddingHorizontal: 10, marginBottom: 10}}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
+                    disabled={loading}
                     onPress={() => handleOpenModal()}
-                    style={{backgroundColor: theme.colors.blue, marginTop: 10, paddingVertical: 10, alignItems: 'center', borderRadius: 20}}
+                    style={{backgroundColor: theme.colors.blurBlue, marginTop: 10, paddingVertical: 10, alignItems: 'center', borderRadius: 20}}
                   >
-                    <StyledText color="white" fontSize="medium" fontWeight="bold">Enviar Orbit</StyledText>
+                    <StyledText color="white" fontSize="medium" fontWeight="bold">Enviar</StyledText>
                   </TouchableOpacity>
                 </View>
               ) : (
@@ -350,9 +371,13 @@ const Resume = () => {
                   </View>
                   <TouchableOpacity 
                     onPress={() => handleOpenModal()}
-                    style={{backgroundColor: theme.colors.blue, marginTop: 10, paddingVertical: 10, alignItems: 'center', borderRadius: 20}}
+                    style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: `${loading ? theme.colors.blurBlue : theme.colors.blue}`, marginTop: 10, paddingVertical: 10, alignItems: 'center', borderRadius: 20}}
                   >
-                    <StyledText color="white" fontSize="medium" fontWeight="bold">Enviar Orbit</StyledText>
+                    {
+                      loading
+                        ? <Loader loading={true} color={theme.colors.white}/>
+                        : <StyledText color="white" fontSize="medium" fontWeight="bold">Enviar Orbit</StyledText>   
+                    }
                   </TouchableOpacity>
                 </View>
               )
@@ -447,13 +472,12 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     alignItems: 'center',
-    gap:10,
+    gap: 10,
     flexDirection: 'column',
-    height: height * 0.18,
+    height: height * 0.20,
     width: width * 0.80,
     backgroundColor: 'white',
-    paddingHorizontal: 20,
-    paddingVertical: 5,
+    paddingHorizontal: 30,
     borderRadius: 10,
   },
 });

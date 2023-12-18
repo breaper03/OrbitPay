@@ -36,7 +36,7 @@ const Pay = () => {
   // ["VES", "USDT", "USD", "EUR", "ETH", "BTC"]
   return (
     <>
-      <StatusBar style="inverted" backgroundColor={theme.colors.blue} hidden={false} translucent={true}/>
+      <StatusBar style="light" backgroundColor={theme.colors.blue} hidden={false} translucent={true}/>
       <View style={styles.container}>
         <View style={[{ backgroundColor: theme.colors.blue, height: height * 0.3 }]}/>
 

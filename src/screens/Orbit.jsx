@@ -21,7 +21,7 @@ const Orbit = () => {
 
   return (
     <>
-      <StatusBar style="inverted" backgroundColor={theme.colors.blue} hidden={false} translucent={true}/>
+      <StatusBar style="light" backgroundColor={theme.colors.blue} hidden={false} translucent={true}/>
       <View style={styles.container}>
 
         <View style={[{ backgroundColor: theme.colors.blue, height: "30%" }]}/>

@@ -8,8 +8,6 @@ import theme from '../theme';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import QRCode from 'react-native-qrcode-svg';
 const { width, height } = Dimensions.get('window');
-import Loader from '../components/Loader';
-import { useUser } from "../context/UserContext"
 
 const Receive = () => {
 
