@@ -15,6 +15,7 @@ interface UserContextProps {
   handleLogOut: () => void;
   handleUserBalance: () => Promise<void | { code: number; response: BalanceList[]; }>
   getUserAccounts: () => Promise<any>
+  handleGetOneUser: (userId: string, token: string) => Promise<void | any>
 }
 
 const UserContext = createContext<UserContextProps | undefined>(undefined)
@@ -76,39 +77,34 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   };
 
+  const handleGetOneUser = async (userId: string, token: string) => {
+    alert("entra al get one")
+    await SecureStore.setItemAsync("token", token)
+    await SecureStore.setItemAsync("userId", userId)
+    alert(`${userId} pasa antes del get one`)
+    await getOne(userId, token).then((data) => {
+      console.log("data.response", data)
+      setUser(data.response)
+      return data
+    })
+  }
+
 
   const handleLogin = async (credentials: IUserLogin) => 
     await login(credentials).then(async (res) => {
-      console.log("res", res)
-      return await getOne(res.data.id, res.token)
-        .then(async (data) => {
-          console.log("datadatadata", data)
-          await SecureStore.setItemAsync("token", res.token)
-          await SecureStore.setItemAsync("userId", res.data.id.toString())
-          setUser(data.response)
-          setTransactions([])
-          return data
-        })
+      if (res.code && res.code === 401) {
+        return res
+      } else {
+        alert(`antes de llamar a get one`)
+        alert(`userid: ${res.data.id}, token: ${res.token}`)
+        await handleGetOneUser(res.data.id.toString(), res.token)
+        return res
+      }
     })
-  
-
-
-  // const handleLogin = async (credentials: IUserLogin) => {
-  //   const response = await login(credentials)
-  //   if (response.token && !response.code) {
-  //     console.log('entra', response)
-  //     throw new Error(response.message)
-  //   } else {
-  //     return await getOne(response.data.id, response.token)
-  //       .then(async (data) => {
-  //         await SecureStore.setItemAsync("token", response.token)
-  //         await SecureStore.setItemAsync("userId", JSON.stringify(response.data.id))
-  //         data.code === 200 && setUser(data.response) 
-  //         setTransactions([])
-  //         return data
-  //       })
-  //   }
-  // }
+    .catch(error => {
+      alert(error)
+      return error
+    })
   
   const handleRegister = async (credentials: IUserRegistration) => {
     try {
@@ -151,7 +147,6 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         return data
       })
       .catch((error) => {
-        console.log("error on getUserAccounts", error)
         return error
       })
   }
@@ -166,7 +161,8 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       handleLogOut,
       transactions,
       handleUserBalance,
-      getUserAccounts
+      getUserAccounts,
+      handleGetOneUser
     }}>
       {children}
     </UserContext.Provider>

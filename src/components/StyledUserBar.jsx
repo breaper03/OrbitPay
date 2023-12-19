@@ -1,5 +1,5 @@
 //framework
-import React from 'react'
+import React, { useState } from 'react'
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 //other
 import { Icon, Badge } from '@rneui/themed';

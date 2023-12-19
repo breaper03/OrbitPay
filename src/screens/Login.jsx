@@ -155,14 +155,14 @@ const Login = () => {
       await handleLogin(formValueLogin)
         .then((data) => {
           console.log("dataaaaaaaaaa", data)
-          navigation.navigate("Dashboard")
-          alert("Se ha iniciado sesion con exito.")
-          setLoading(false)
-        })
-        .catch((error) => {
-          console.log("entraaaaaaaaaaaaaaaaaaaaaaa", error)
-          setSubmitError({error: true, message: error})
-          // setSubmitError({error: true, message: "Credenciales invalidas."})
+          if (data.message && data.code === 401) {
+            setLoading(false)
+            setSubmitError({error: true, message: data.message ? data.message : "Error valide las credenciales"})
+          } else if (data.data.id) {
+            alert(`${data.data.id}, ${data.data.username}`)
+            navigation.navigate("Dashboard")
+            setLoading(false)
+          }
           setLoading(false)
         })
     } else {
@@ -170,6 +170,7 @@ const Login = () => {
       checkLoginErrors()
       setLoading(false)
     }
+    setLoading(false)
   }
 
   const register = async () => {

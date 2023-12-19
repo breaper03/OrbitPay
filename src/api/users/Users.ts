@@ -1,15 +1,17 @@
 // import {CRIPTOVEN_API_URL} from "@env"
 import { IUserLogin, IUserRegistration } from "../../interfaces/Users.interface"
 
+const criptovenApiUrl = "http://54.220.205.31/api"
+
 export const login = async (credentials: IUserLogin) => 
-  await fetch(`http://54.220.205.31/api/login_check`, {
+  await fetch(`${criptovenApiUrl}/login_check`, {
     method: "POST",
     body: JSON.stringify(credentials),
     redirect: "follow"
   })
   .then((response) => response.json())
   .then((data) => data)
-  .catch((error) => new Error(error))
+  .catch((error) => error)
 
 
 
@@ -22,7 +24,7 @@ export const register = async (credentials: any) => {
   formdata.append("userType", userType.toString());
   formdata.append("reside", reside.toString());
 
-  return await fetch(`http://54.220.205.31/api/users/register`, {
+  return await fetch(`${criptovenApiUrl}/users/register`, {
     method: "POST",
     body: formdata,
     redirect: "follow"
@@ -41,7 +43,7 @@ export const completeRegister = async (credentials: any, token: string) => {
     return formdata.append(element, credentials[element])
   })
 
-  return await fetch(`http://54.220.205.31/api/users/complete-register`, {
+  return await fetch(`${criptovenApiUrl}/users/complete-register`, {
     method: "POST",
     // body: JSON.stringify(parseJSON),
     body: formdata,
@@ -68,15 +70,15 @@ export const resetPassword = async (email: string) => {
   formdata.append("email", email.toString());
   formdata.append("callback_url", "https://app.criptoven.io/users/recover-password");
 
-  return await fetch(`http://54.220.205.31/api/users/forgot-password`, {
+  return await fetch(`${criptovenApiUrl}/users/forgot-password`, {
     method: 'POST',
     body: formdata,
     redirect: 'follow'
   })
 } 
 
-export const getOne = async (userId: string, token: string) => 
-  await fetch(`http://54.220.205.31/api/users/${userId}`, {
+export const getOne = async (userId: string, token: string) => {
+  return await fetch(`${criptovenApiUrl}/users/${userId}`, {
     method: "GET",
     redirect: "follow",
     headers: {
@@ -90,9 +92,9 @@ export const getOne = async (userId: string, token: string) =>
     console.log("error en fetch", error)
     throw new Error(`Error getone: ${error}`);
   })
-
+}
 export const getUserAccount = async (userId: string, token: string) => 
-  await fetch(`http://54.220.205.31/api/users/${userId}/accounts`, {
+  await fetch(`${criptovenApiUrl}/users/${userId}/accounts`, {
     method: "GET",
     redirect: "follow",
     headers: {

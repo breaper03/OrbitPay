@@ -12,6 +12,7 @@ import StyledUserBar from '../components/StyledUserBar'
 import StyledTransations from '../components/StyledTransations';
 import { StatusBar } from 'expo-status-bar'
 import { useUser } from '../context/UserContext';
+import Loader from '../components/Loader';
 
 const { width, height } = Dimensions.get('window');
 
@@ -19,6 +20,7 @@ const Home = () => {
   const { user } = useUser()
   const [visible, setVisible] = useState(false);
   const [balance, setBalance] = useState(0)
+  const [loading, setLoading] = useState(false)
 
   return (
     <>
