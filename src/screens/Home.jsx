@@ -17,7 +17,20 @@ import Loader from '../components/Loader';
 const { width, height } = Dimensions.get('window');
 
 const Home = () => {
-  const { user } = useUser()
+  
+  const { user, handleGetOneUser } = useUser()
+
+  useEffect(() => {
+    const getOneUser = async () => {
+      setLoading(true)
+      const token = await SecureStore.getItemAsync("token")
+      const userId = await SecureStore.getItemAsync("userId")
+      await handleGetOneUser(userId, token)
+    }
+    getOneUser()
+    setLoading(false)
+  }, [])
+  
   const [visible, setVisible] = useState(false);
   const [balance, setBalance] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -28,43 +41,51 @@ const Home = () => {
       <View style={{height: Constants.statusBarHeight}}>
         <StyledModal visible={visible} setVisible={setVisible} />
       </View>
-      <View style={styles.container}>
-        <View style={styles.box}>
+      {
+        loading
+          ? (
+            <Loader loading={loading}/>
+          )
+          : (
+            <View style={styles.container}>
+              <View style={styles.box}>
 
-          {/* User Bar */}
-          <View style={styles.carouselTopBar}>
-            <StyledUserBar user={user}/>
-          </View>
+                {/* User Bar */}
+                <View style={styles.carouselTopBar}>
+                  <StyledUserBar user={user}/>
+                </View>
 
-          {/* Balance Bar */}
-          <View key={Math.random()} style={styles.headerTopBar}>
-            <TouchableOpacity style={styles.headerTopText} onPress={() => {setVisible(!visible)}}>
-              <View>
-                <StyledText fontSize="xxl" fontWeight="bold" color="white">Balance</StyledText>
+                {/* Balance Bar */}
+                <View key={Math.random()} style={styles.headerTopBar}>
+                  <TouchableOpacity style={styles.headerTopText} onPress={() => {setVisible(!visible)}}>
+                    <View>
+                      <StyledText fontSize="xxl" fontWeight="bold" color="white">Balance</StyledText>
+                    </View>
+                    <View style={{flexDirection: "row", alignItems: 'flex-end'}}> 
+                      <StyledText 
+                        style={{color: theme.colors.white, fontWeight: theme.fontWeights.bold, fontSize: theme.fontSize.medium, marginBottom: 3}}
+                      >$</StyledText>
+                      <StyledText fontSize="xxl" fontWeight="bold" color="white"> {balance}</StyledText>
+                      <Icon name='info-outline' type='material' size={14} color={theme.colors.white} style={styles.modalIcon}/>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+                
+                {/* Table and Transactions Container */}
+                <View style={{ flex: 1, flexDirection: "column"}}>
+                  <View style={{height: height * 0.365, marginBottom: 15, elevation: 3}}>
+                    <StyledTable setBalance={setBalance}/>
+                  </View>
+                  
+                  <View style={{height:height * 0.19, paddingVertical: 1}}>
+                    <StyledTransations pagination={0} customHeight={0.245}/>
+                  </View>
+                </View>
+
               </View>
-              <View style={{flexDirection: "row", alignItems: 'flex-end'}}> 
-                <StyledText 
-                  style={{color: theme.colors.white, fontWeight: theme.fontWeights.bold, fontSize: theme.fontSize.medium, marginBottom: 3}}
-                >$</StyledText>
-                <StyledText fontSize="xxl" fontWeight="bold" color="white"> {balance}</StyledText>
-                <Icon name='info-outline' type='material' size={14} color={theme.colors.white} style={styles.modalIcon}/>
-              </View>
-            </TouchableOpacity>
-          </View>
-          
-          {/* Table and Transactions Container */}
-          <View style={{ flex: 1, flexDirection: "column"}}>
-            <View style={{height: height * 0.365, marginBottom: 15, elevation: 3}}>
-              <StyledTable setBalance={setBalance}/>
             </View>
-            
-            <View style={{height:height * 0.19, paddingVertical: 1}}>
-              <StyledTransations pagination={0} customHeight={0.245}/>
-            </View>
-          </View>
-
-        </View>
-      </View>
+          )
+      }
     </>
   )
 }

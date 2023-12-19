@@ -81,7 +81,7 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     alert("entra al get one")
     await SecureStore.setItemAsync("token", token)
     await SecureStore.setItemAsync("userId", userId)
-    alert(`${userId} pasa antes del get one`)
+    alert(`userId: ${userId} pasa antes del get one`)
     await getOne(userId, token).then((data) => {
       console.log("data.response", data)
       setUser(data.response)

@@ -152,6 +152,10 @@ const StyledTransations = ({customHeight, pagination}) => {
               : (
                 <FlatList
                   data={sortedTransactions}
+                  removeClippedSubviews={true}
+                  maxToRenderPerBatch={10}
+                  updateCellsBatchingPeriod={10}
+                  initialNumToRender={10}
                   renderItem={renderTransactionItem}
                   key={Math.random()}
                   keyExtractor={(item) => item.date}

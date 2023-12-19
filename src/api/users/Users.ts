@@ -27,7 +27,10 @@ export const register = async (credentials: any) => {
   return await fetch(`${criptovenApiUrl}/users/register`, {
     method: "POST",
     body: formdata,
-    redirect: "follow"
+    redirect: "follow",
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
   })
   .then((response) => response.json())
   .then((data) => data)
@@ -82,7 +85,6 @@ export const getOne = async (userId: string, token: string) => {
     method: "GET",
     redirect: "follow",
     headers: {
-      'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     },
   })
