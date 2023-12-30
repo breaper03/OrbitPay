@@ -51,6 +51,7 @@ const Resume = () => {
   const navigation = useNavigation();
   
   const handleInputChange = (inputName, value) => {
+    handleErros()
     setFormData((prevData) => ({
       ...prevData,
       [inputName]: value,
@@ -58,8 +59,8 @@ const Resume = () => {
   };
 
   const handleErros = (submitTry) => {
-    errorsOnDirection = !formData.email || formData.email.trim().length <= 0 || formData.email.trim().length < 20
-    errorsOnDescription = !formData.description || formData.description.trim().length <= 0
+    const errorsOnDirection = !formData.email || formData.email.trim().length <= 0 || formData.email.trim().length < 20
+    const errorsOnDescription = !formData.description || formData.description.trim().length <= 0
     
     submitTry
       ? setInputError({
@@ -72,13 +73,12 @@ const Resume = () => {
       })
   }
 
-  const checkErrors = () => Object.values(inputError).some((value) => value.error === true);
-
   const handleOpenModal = () => {
     if (!dual) {
       submitTry = true
       handleErros(submitTry)
-      const errors = checkErrors()
+      const errors = Object.values(inputError).some((value) => value.error === true);
+      console.log("error", inputError.description.error)
       if (!errors) setModalVisible(true)
     } else {
       setModalVisible(true)
@@ -307,12 +307,12 @@ const Resume = () => {
                 <StyledText fontWeight="bold" fontSize="normal" color="blue">{
                   !cryptoAmount.cryptoFee > 0.00000001
                     ? <Loader size="small" color={theme.colors.blue}/>
-                    : cryptoAmount.cryptoFee
+                    : `${coin.currency_symbol} ${cryptoAmount.cryptoFee}`
                 }</StyledText>
                 <StyledText fontWeight="bold" fontSize="normal" color="gray">{
                   !fee
                     ? <Loader size="small" color={theme.colors.blue}/>
-                    : fee.toFixed(2)
+                    : `$ ${fee.toFixed(2)}`
                 }</StyledText>
               </View>
             </View>
@@ -322,12 +322,12 @@ const Resume = () => {
                 <StyledText fontWeight="bold" fontSize="normal" color="blue">{
                   !cryptoAmount.cryptoTotal > 0.00000001
                     ? <Loader size="small" color={theme.colors.blue}/>
-                    : cryptoAmount.cryptoTotal
+                    : `${coin.currency_symbol} ${cryptoAmount.cryptoTotal}`
                 }</StyledText>
                 <StyledText fontWeight="bold" fontSize="normal" color="gray">{
                   !fee
                     ? <Loader size="small" color={theme.colors.blue}/>
-                    : (parseFloat(amount) + fee).toFixed(2)
+                    : `$ ${(parseFloat(amount) + fee).toFixed(2)}`
                 }</StyledText>
               </View>
             </View>
@@ -352,7 +352,7 @@ const Resume = () => {
                       <View>
                         <StyledText>
                           Direccion de destino * {
-                            inputError.email.submitTry 
+                            inputError.email.submitTry && inputError.email.error
                               ? <StyledText color="red" fontSize="sm" fontWeight="extralight">(Direccion invalida)</StyledText>
                               : ""
                           }
@@ -362,7 +362,9 @@ const Resume = () => {
                       <View>
                         <StyledText>
                           Descripcion * {
-                            inputError.description.submitTry ? <StyledText color="red" fontSize="sm" fontWeight="extralight">(Descripcion invalida)</StyledText> : ""
+                            inputError.description.submitTry && inputError.description.error
+                              ? <StyledText color="red" fontSize="sm" fontWeight="extralight">(Descripcion invalida)</StyledText> 
+                              : ""
                           }
                         </StyledText>
                         <TextInput ref={descriptionRef} placeholder='Prestamo' style={styles.input} onChangeText={(text) => handleInputChange("description", text)}/>
@@ -371,12 +373,13 @@ const Resume = () => {
                   </View>
                   <TouchableOpacity 
                     onPress={() => handleOpenModal()}
+                    disabled={loading}
                     style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: `${loading ? theme.colors.blurBlue : theme.colors.blue}`, marginTop: 10, paddingVertical: 10, alignItems: 'center', borderRadius: 20}}
                   >
                     {
                       loading
                         ? <Loader loading={true} color={theme.colors.white}/>
-                        : <StyledText color="white" fontSize="medium" fontWeight="bold">Enviar Orbit</StyledText>   
+                        : <StyledText color="white" fontSize="medium" fontWeight="bold">Enviar</StyledText>   
                     }
                   </TouchableOpacity>
                 </View>

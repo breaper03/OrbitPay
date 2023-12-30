@@ -155,4 +155,32 @@ export const swapMoney = async (currencyFrom: string, currencyTo: string, amount
     })
 }
 
+export const depositFiat = async (form: any, token: string) => {
+  const formdata = new FormData()
+  Object.keys(form).forEach((element) => formdata.append(`${element}`, form[element]))
+
+  console.log("formdata", formdata)
+
+  return await fetch(`${criptovenApiUrl}/transactions/fiats/deposit`, {
+    method: "POST",
+    redirect: "follow",
+    headers: {
+      "Authorization": `Bearer ${token}`, 
+      'Content-Type': 'multipart/form-data'
+      // 'Content-Type': 'application/json',
+      // 'Content-Type': "application/x-www-form-urlencoded;charset=UTF-8",
+    },
+    // body: JSON.stringify(form)
+    body: formdata
+  }).then((data) => data.json())
+    .then(data => {
+      console.log("dataen fetch", data)
+      return data
+    })
+    .catch(error => {
+      console.log("error en fetch", error)
+      return error
+    })
+}
+
 

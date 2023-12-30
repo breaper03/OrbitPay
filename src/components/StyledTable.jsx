@@ -27,15 +27,15 @@ const StyledTable = ({setBalance}) => {
         }
     }
     getTransactions()
-  }, [transactions, user])
+  }, [])
 
 
-  const transformedArray = (number) => {
+  const transformedArray = (number, moneyType) => {
     // Eliminar signo '-' y reemplazar ',' por '.'
     const formattedNumber = number.replace('-', '').replace(',', '.');
   
     // Redondear a 7 decimales
-    const roundedNumber = Number(formattedNumber).toFixed(7);
+    const roundedNumber = moneyType === "money" ? Number(formattedNumber).toFixed(2) : Number(formattedNumber).toFixed(7)
   
     return roundedNumber.replace("-", "");
   }
@@ -90,8 +90,21 @@ const StyledTable = ({setBalance}) => {
 
         <View color="blue" fontSize="xxs" fontWeight="extralight" style={styles.balanceRow}>
           <View>
-            <StyledText style={styles.balanceRowText}>{transformedArray(item.total)}</StyledText>
-            <StyledText style={styles.balanceRowText}>$ {fixTotalInDolar(item.total_in_usd).replace("-", "")}</StyledText> 
+            {
+              item.money_type === "money"
+              ? (
+                <>
+                  <StyledText style={styles.balanceRowText}>{item.currency_symbol} {transformedArray(item.total, "money")}</StyledText>
+                  <StyledText style={styles.balanceRowText}>$ {fixTotalInDolar(item.total_in_usd).replace("-", "")}</StyledText> 
+                </>
+                )
+                : (
+                  <>
+                    <StyledText style={styles.balanceRowText}>{transformedArray(item.total, "cryptocurrency")}</StyledText>
+                    <StyledText style={styles.balanceRowText}>$ {fixTotalInDolar(item.total_in_usd).replace("-", "")}</StyledText> 
+                  </>
+              )
+            }
           </View>
         </View>
 
@@ -103,13 +116,26 @@ const StyledTable = ({setBalance}) => {
           </StyledText>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.rowsText}>
-          <StyledText color="blue" fontSize="xxs" fontWeight="extralight" style={styles.rowsText}
-            onPress={() => navigation.navigate("Receive", {coin: item})}
-          >
-            <Icon name='arrow-bottom-left-thick' type='material-community'color={theme.colors.blue} size={20}/>
-          </StyledText>        
-        </TouchableOpacity>
+        {
+          item.money_type === "money"
+            ? (
+              <TouchableOpacity style={styles.rowsText}>
+                <StyledText color="blue" fontSize="xxs" fontWeight="extralight" style={styles.rowsText}
+                  onPress={() => navigation.navigate("DepositFiats", {coin: item})}
+                >
+                  <Icon name='arrow-bottom-left-thick' type='material-community'color={theme.colors.blue} size={20}/>
+                </StyledText>        
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity style={styles.rowsText}>
+                <StyledText color="blue" fontSize="xxs" fontWeight="extralight" style={styles.rowsText}
+                  onPress={() => navigation.navigate("Receive", {coin: item})}
+                >
+                  <Icon name='arrow-bottom-left-thick' type='material-community'color={theme.colors.blue} size={20}/>
+                </StyledText>        
+              </TouchableOpacity>
+            )
+        }
 
         <TouchableOpacity style={styles.rowsText}>
           <StyledText color="blue" fontSize="xxs" fontWeight="extralight" style={styles.rowsText}

@@ -79,8 +79,6 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   const handleGetOneUser = async (userId: string, token: string) => {
     alert("entra al get one")
-    await SecureStore.setItemAsync("token", token)
-    await SecureStore.setItemAsync("userId", userId)
     alert(`userId: ${userId} pasa antes del get one`)
     await getOne(userId, token).then((data) => {
       console.log("data.response", data)
@@ -95,9 +93,10 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       if (res.code && res.code === 401) {
         return res
       } else {
+        res.token && await SecureStore.setItemAsync("token", res.token)
+        res.data.id && await SecureStore.setItemAsync("userId", res.data.id.toString())
         alert(`antes de llamar a get one`)
-        alert(`userid: ${res.data.id}, token: ${res.token}`)
-        await handleGetOneUser(res.data.id.toString(), res.token)
+        alert(`userId: ${res.data.id}, token: ${res.token}`)
         return res
       }
     })
@@ -127,7 +126,7 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   const handleUserBalance = async () => {
     const token = await SecureStore.getItemAsync("token");
-    const userId = await SecureStore.getItemAsync("userId")
+    const userId = await SecureStore.getItemAsync("userId");
     return await getBalance(userId, token)
       .then((data: {code: number, response: BalanceList[]}) => {
         setTransactions(data.response)

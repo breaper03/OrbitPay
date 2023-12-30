@@ -14,16 +14,16 @@ const Keyboard = ({amount, setAmount, maxAmount}) => {
   
 
   const handleKeyPress = (key) => {
-  const newAmount = parseFloat(amount) * 10 + parseInt(key) /100;
+    const newAmount = parseFloat(amount) * 10 + parseInt(key) /100;
 
-  // Verificar si excede el límite de 600,00
-  const limitedAmount = Math.min(newAmount, maxAmount);
+    // Verificar si excede el límite de 600,00
+    const limitedAmount = Math.min(newAmount, maxAmount);
 
-  // Actualizar el estado solo si el nuevo valor no excede el límite
-  if (limitedAmount <= maxAmount) {
-    setAmount(limitedAmount.toFixed(2));
-  }
-};
+    // Actualizar el estado solo si el nuevo valor no excede el límite
+    if (limitedAmount <= maxAmount) {
+      setAmount(limitedAmount.toFixed(2));
+    }
+  };
 
   const handleBackspace = () => {
     const newAmount = parseFloat(amount) * 0.1;

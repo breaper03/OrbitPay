@@ -15,10 +15,10 @@ const Transactions = () => {
   
   return (
     <SafeAreaView style={{flex: 1}}>
-        <StatusBar style="auto" backgroundColor={theme.colors.lightBlue} hidden={false} translucent={true}/>
+      <StatusBar style="auto" backgroundColor={theme.colors.lightBlue} hidden={false} translucent={true}/>
       <View style={{flex: 1, padding: 5, justifyContent: 'space-around', backgroundColor: theme.colors.lightBlue}}>
         <View style={{marginVertical: 50, alignItems:'flex-start'}}>
-          <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', gap: 35}} onPress={() => navigation.navigate("Dashboard")}>
+          <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', gap: 35}} onPress={() => navigation.navigate("DashboardButtom")}>
             
             <View>
               <View style={{justifyContent: 'center'}} >

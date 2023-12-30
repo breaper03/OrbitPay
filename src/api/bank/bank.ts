@@ -35,7 +35,25 @@ export const getBankAccounts = async (userId: string, token: string) => {
   })
     .then((data) => data.json())
     .then((data) => {
-      console.log("data", data)
+      return data
+    })
+    .catch((error) => {
+      console.log("error", error)
+      return error
+    })
+}
+
+export const getCompanyBankAccounts = async (token: string) => {
+  return await fetch(`${criptovenApiUrl}/company/bank-accounts/list`, {
+    method: "GET",
+    redirect: "follow",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  })
+    .then((data) => data.json())
+    .then((data) => {
       return data
     })
     .catch((error) => {
@@ -69,15 +87,6 @@ export const createBankAccount =  async (userId: string, form: any, token: strin
   Object.keys(form).forEach((element) => {
     formdata.append(element, form[element])
   });
-
-  // var formdata = new FormData();
-  // formdata.append("alias", "My Bank Account National in API");
-  // formdata.append("currency", "VES");
-  // formdata.append("bankCodeNumber", "123456");
-  // formdata.append("bancCodePhoneCountry", "58");
-  // formdata.append("phoneNumber", "4143110914");
-  // formdata.append("bancAccountType", "2");
-  // formdata.append("bank", "2");
 
   console.log("formdata", formdata);
 

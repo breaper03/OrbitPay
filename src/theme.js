@@ -10,8 +10,8 @@ const theme = {
     lightRed: "#FFB5B5",
     blue: "#262F66", 
     blurBlue: "#20265A59",
-    // lightBlue: "#C2EEFF",
     lightBlue: "#DEEFF7",
+    darkGray: "#373838"
   },
   fontSize: {
     xxs: 9,

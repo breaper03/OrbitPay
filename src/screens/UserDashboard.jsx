@@ -35,8 +35,8 @@ const UserDashboard = () => {
                 style={[styles.card, {backgroundColor: "transparent", top: height * 0.135, height: height * 0.63, justifyContent: 'space-between'}]}
               >
                 <View style={[styles.card, {backgroundColor: "white", height: height * 0.13, elevation: 4, flexDirection:'row', gap: 10}]}>
-                  <View style={{backgroundColor: theme.colors.blue, borderRadius: 100, alignItems: 'center', justifyContent: 'center', padding: 18}}>
-                    <Icon name='user-alt' type='font-awesome-5' color={theme.colors.lightBlue} size={35}/>
+                  <View style={{borderRadius: 100, alignItems: 'center', justifyContent: 'center', padding: 18}}>
+                    <Icon name='user-alt' type='font-awesome-5' color={theme.colors.blue} size={35} raised reverse/>
                   </View>
                   <View style={{height: "100%", flexDirection: 'column'}}>
                     <StyledText fontSize="medium" fontWeight="bold" color="blue">{user.username}</StyledText>

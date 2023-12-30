@@ -23,11 +23,11 @@ export default function StyledUserBar({user}) {
         <StyledText color="white" fontWeight="extraBold" fontSize="sm">
           {user !== undefined ? user.username.toUpperCase() : ""}
         </StyledText>
-        {/* {
+        {
           user !== undefined && user.verification_status.name === "profile_verification_complete"
           ? <Icon type='octicon' name="verified" color={theme.colors.green} size={15}/>
           : <Icon type='octicon' name="unverified" color={theme.colors.gray} size={15}/>
-        } */}
+        }
       </TouchableOpacity>
       <TouchableOpacity
         style={{

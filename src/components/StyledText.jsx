@@ -33,6 +33,7 @@ const StyledText = ({
     color === "gray" && styles.gray,
     color === "lightRed" && styles.lightRed,
     color === "blurBlue" && styles.blurBlue,
+    color === "darkGray" && styles.darkGray
   ]
 
   return (
@@ -124,5 +125,8 @@ const styles = StyleSheet.create({
   },
   lightGray: {
     color: theme.colors.lightgray
+  },
+  darkGray: {
+    color: theme.colors.darkGray
   }
 })

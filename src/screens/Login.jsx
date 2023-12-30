@@ -43,8 +43,6 @@ const Login = () => {
     reside: undefined
   });
 
-  const [openUsertype, setOpenUsertype] = useState(false)
-
   const [openCountry, setOpenCountry] = useState(false)
 
   const [registerError, setRegisterError] = useState({
@@ -82,11 +80,6 @@ const Login = () => {
 
   const regexPwd = /^(?=.*[A-Z])(?=(?:.*\d){2})(?=(?:.*[!@#$%^&*()_+={}[\]:;<>,./?~-]){2}).{8,}$/;
   const regexEmail = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-
-  const userTypeData = [
-    {label:'0', value:'Natural'},
-    {label:'1', value:'Juridica'}
-  ]
   
   const resideData = [
     {label:'0', value:'Venezuela'},
@@ -154,7 +147,6 @@ const Login = () => {
     if (!errors) {
       await handleLogin(formValueLogin)
         .then((data) => {
-          console.log("dataaaaaaaaaa", data)
           if (data.message && data.code === 401) {
             setLoading(false)
             setSubmitError({error: true, message: data.message ? data.message : "Error valide las credenciales"})
@@ -281,7 +273,8 @@ const Login = () => {
                               <View style={{flexDirection: 'column', justifyContent: 'space-between', gap: 5}}>
                                 {
                                   resideData.map((item) => (
-                                    <TouchableOpacity 
+                                    <TouchableOpacity
+                                      key={Math.random()}
                                       style={{
                                         borderWidth: 2,
                                         marginBottom: 10,

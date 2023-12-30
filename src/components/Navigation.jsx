@@ -9,6 +9,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import theme from '../theme'
 import { useUser } from "../context/UserContext"
+import FiatDeposit from '../screens/FiatDeposit'
 
 const Tab = createBottomTabNavigator()
 
@@ -143,6 +144,10 @@ const Navigation = () => {
         <Stack.Screen 
           name="BankAccounts" 
           component={Accounts} 
+        />
+        <Stack.Screen 
+          name="DepositFiats" 
+          component={FiatDeposit} 
         />
       </Stack.Navigator>
     </NavigationContainer>

@@ -8,7 +8,7 @@ import { useUser } from "../context/UserContext"
 
 const {width, height} = Dimensions.get('window')
 
-const Dropdown = ({ onSelect, selected, coinLink, isDual }) => {
+const Dropdown = ({ onSelect, selected, coinLink, isDual, isFiatOnly }) => {
 
   const {transactions} = useUser()
 
@@ -16,6 +16,11 @@ const Dropdown = ({ onSelect, selected, coinLink, isDual }) => {
     isDual
       ? transactions.filter((item) => item !== selected).filter((item) => item !== isDual)
       : transactions.filter((item) => item !== selected)
+  
+  const validateIsFiatOnly = () => 
+    isFiatOnly
+      ? transactions.filter((item) => item.money_type === "money").filter((item) => item !== selected)
+      : transactions
   
   const [loading, setLoading] = useState(false)
 
@@ -204,7 +209,7 @@ const Dropdown = ({ onSelect, selected, coinLink, isDual }) => {
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, {height: `${isFiatOnly ? height * 0.35 : height * 0.5}`}]}>
             <View style={{flexDirection: 'row', width: "100%", justifyContent: 'space-around', alignItems: 'center'}}>
               <TouchableOpacity onPress={() => setModalVisible(false)} style={{backgroundColor: theme.colors.blue, paddingHorizontal: 5, paddingVertical: 3, borderRadius: 10, elevation: 3}}>
                 {/* <StyledText color="white" fontWeight="bold" fontSize="base">Atras</StyledText> */}
@@ -212,11 +217,19 @@ const Dropdown = ({ onSelect, selected, coinLink, isDual }) => {
               </TouchableOpacity>
               <StyledText fontSize="medium" fontWeight="bold" color="blue">Seleccione una moneda:</StyledText>
             </View>
-            <FlatList
-              data={validateIsDual()}
-              keyExtractor={(item) => item.coin}
-              renderItem={renderItem}
-            />
+            {
+              isFiatOnly
+                ? <FlatList
+                  data={validateIsFiatOnly()}
+                  keyExtractor={(item) => item.coin}
+                  renderItem={renderItem}
+                />
+                : <FlatList
+                  data={validateIsDual()}
+                  keyExtractor={(item) => item.coin}
+                  renderItem={renderItem}
+                />
+            }
           </View>
         </View>
       </Modal>
@@ -250,7 +263,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap:10,
     flexDirection: 'column',
-    height: height * 0.5,
     width: width * 0.85,
     backgroundColor: 'white',
     padding: 20,
